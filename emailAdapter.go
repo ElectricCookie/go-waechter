@@ -1,4 +1,4 @@
-package main
+package waechter
 
 //EmailAdapter is used to send registration emails or request a new password
 type EmailAdapter interface {

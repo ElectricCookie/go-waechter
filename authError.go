@@ -1,4 +1,4 @@
-package main
+package waechter
 
 //AuthError describes all errors that can happen in this package
 type AuthError struct {

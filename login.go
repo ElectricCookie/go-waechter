@@ -1,4 +1,4 @@
-package main
+package waechter
 
 import (
 	"time"
@@ -13,7 +13,7 @@ type LoginEmailOrUsernameData struct {
 	RememberMe      bool   `json:"rememberMe" binding:"required"`
 }
 
-// LoginWithUsernameOrEmail logs a user in using email or username and password. Possible AuthErrors: unknownUser, cryptError, wrongPassword
+// LoginWithUsernameOrEmail logs a user in using email or username and password. Returns a new refresh token. Possible AuthErrors: unknownUser, cryptError, wrongPassword
 func LoginWithUsernameOrEmail(parameters LoginEmailOrUsernameData) (*string, *AuthError) {
 
 	// Retrieve the desired user

@@ -1,4 +1,4 @@
-package main
+package waechter
 
 // RefreshToken is a token that can be used to gain access to an access_token
 type RefreshToken struct {

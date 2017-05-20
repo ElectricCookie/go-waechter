@@ -1,4 +1,4 @@
-package main
+package waechter
 
 //DBAdapter is an interface used to connect to a database
 type DBAdapter interface {

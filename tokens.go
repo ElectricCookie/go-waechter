@@ -1,9 +1,8 @@
-package main
+package waechter
 
 import (
 	"time"
 
-	"github.com/ElectricCookie/das-cms/configLoader"
 	jwt "github.com/dgrijalva/jwt-go"
 	"golang.org/x/crypto/scrypt"
 )
@@ -67,7 +66,7 @@ func checkRefreshToken(jwtToken string) (*jwt.StandardClaims, error) {
 
 	claims := jwt.StandardClaims{}
 	_, parseError := jwt.ParseWithClaims(jwtToken, &claims, func(token *jwt.Token) (interface{}, error) {
-		return []byte(configLoader.GetConfig().JWTSecret), nil
+		return []byte(getParameters().jwtSecret), nil
 	})
 
 	refreshToken := claims.Id

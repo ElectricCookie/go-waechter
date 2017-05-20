@@ -1,4 +1,4 @@
-package main
+package waechter
 
 import "time"
 
