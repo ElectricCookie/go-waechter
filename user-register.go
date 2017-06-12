@@ -8,22 +8,20 @@ import (
 
 // RegisterParams are the parameters used to register a new user.
 type RegisterParams struct {
-	Username   string `validate:"required"`
-	Password   string `validate:"required"`
-	Email      string `validate:"required,email"`
-	FirstName  string `validate:"required"`
-	LastName   string `validate:"required"`
-	Language   string `validate:"required"`
-	Registered *time.Time
-	LastLogin  *time.Time
+	Username  string `validate:"required"`
+	Password  string `validate:"required"`
+	Email     string `validate:"required,email"`
+	FirstName string `validate:"required"`
+	LastName  string `validate:"required"`
+	Language  string `validate:"required"`
 }
 
 //Register a new user
-func Register(params RegisterParams) *AuthError {
+func (waechter *Waechter) Register(params RegisterParams) *AuthError {
 
 	// Check if user exists
 
-	_, err := getAdapter().GetUserByUsername(params.Username)
+	_, err := waechter.getDBAdapter().GetUserByUsername(params.Username)
 
 	if err == nil {
 		return &AuthError{
@@ -35,7 +33,7 @@ func Register(params RegisterParams) *AuthError {
 
 	// Check if email exists
 
-	_, err = getAdapter().GetUserByEmail(params.Email)
+	_, err = waechter.getDBAdapter().GetUserByEmail(params.Email)
 
 	if err == nil {
 		return &AuthError{
@@ -80,13 +78,15 @@ func Register(params RegisterParams) *AuthError {
 		Registered:        time.Now(),
 	}
 
-	saveErr := getAdapter().CreateUser(newUser)
+	saveErr := waechter.getDBAdapter().CreateUser(newUser)
 
 	if saveErr != nil {
 		return dbWriteErr(saveErr)
 	}
 
-	emailErr := getEmailAdapter().SendRegistrationEmail(newUser)
+	waechter.getLocales(newUser)
+
+	emailErr := waechter.getEmailAdapter().SendRegistrationEmail(waechter, newUser)
 
 	if emailErr != nil {
 		return emailSendErr(emailErr)

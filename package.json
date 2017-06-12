@@ -1,0 +1,22 @@
+{
+  "name": "go-waechter",
+  "version": "1.0.0",
+  "description": "<p align=\"center\"><img src=\"http://imgur.com/WWeVTGh.png\" height=\"20\"/></p>",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "templates": "./node_modules/.bin/mjml ./templates/*.mjml -o ./templates/",
+    "assets": "go-bindata -pkg waechter -ignore \\.mjml templates/..."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ElectricCookie/go-waechter.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ElectricCookie/go-waechter/issues"
+  },
+  "homepage": "https://github.com/ElectricCookie/go-waechter#readme"
+}

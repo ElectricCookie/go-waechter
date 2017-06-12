@@ -8,7 +8,7 @@ import (
 )
 
 // GenerateRefreshToken generates a new refresh-token and saves it in the database
-func GenerateRefreshToken(userID string, expires int64) (*string, *AuthError) {
+func (waechter *Waechter) GenerateRefreshToken(userID string, expires int64) (*string, *AuthError) {
 
 	// Generate token
 	token, err := generateRandomString(64)
@@ -22,7 +22,7 @@ func GenerateRefreshToken(userID string, expires int64) (*string, *AuthError) {
 
 	// Get the associated user
 
-	user, err := getAdapter().GetUserById(userID)
+	user, err := waechter.getDBAdapter().GetUserByID(userID)
 
 	if err != nil {
 		return nil, &AuthError{
@@ -39,7 +39,7 @@ func GenerateRefreshToken(userID string, expires int64) (*string, *AuthError) {
 		return nil, cryptError(err)
 	}
 
-	getAdapter().InsertRefreshToken(&RefreshToken{
+	waechter.getDBAdapter().InsertRefreshToken(&RefreshToken{
 		Expires: expires,
 		Token:   string(derivedKey),
 		UserID:  userID,
@@ -52,7 +52,7 @@ func GenerateRefreshToken(userID string, expires int64) (*string, *AuthError) {
 		Id:       token,
 	})
 
-	resString, err := jwtToken.SignedString(getParameters().jwtSecret)
+	resString, err := jwtToken.SignedString(waechter.JwtSecret)
 	if err != nil {
 		return nil, cryptError(err)
 	}
@@ -62,11 +62,11 @@ func GenerateRefreshToken(userID string, expires int64) (*string, *AuthError) {
 }
 
 // checkRefreshToken checks if a refresh token is valid. In case of invalidity a theft is assumed and the users sessions are nuked
-func checkRefreshToken(jwtToken string) (*jwt.StandardClaims, error) {
+func (waechter *Waechter) checkRefreshToken(jwtToken string) (*jwt.StandardClaims, error) {
 
 	claims := jwt.StandardClaims{}
 	_, parseError := jwt.ParseWithClaims(jwtToken, &claims, func(token *jwt.Token) (interface{}, error) {
-		return []byte(getParameters().jwtSecret), nil
+		return []byte(waechter.JwtSecret), nil
 	})
 
 	refreshToken := claims.Id
@@ -76,7 +76,7 @@ func checkRefreshToken(jwtToken string) (*jwt.StandardClaims, error) {
 		return nil, parseError
 	}
 
-	user, userErr := getAdapter().GetUserById(userID)
+	user, userErr := waechter.getDBAdapter().GetUserByID(userID)
 
 	if userErr != nil {
 		return nil, userErr
@@ -90,7 +90,7 @@ func checkRefreshToken(jwtToken string) (*jwt.StandardClaims, error) {
 		return nil, cryptError
 	}
 
-	_, retrieveError := getAdapter().FindRefreshToken(userID, string(dk))
+	_, retrieveError := waechter.getDBAdapter().FindRefreshToken(userID, string(dk))
 
 	if retrieveError != nil {
 		return nil, retrieveError
@@ -101,9 +101,9 @@ func checkRefreshToken(jwtToken string) (*jwt.StandardClaims, error) {
 }
 
 // GenerateAccessToken issues a new access token based on a refresh token
-func GenerateAccessToken(refreshToken string) (*string, *AuthError) {
+func (waechter *Waechter) GenerateAccessToken(refreshToken string) (*string, *AuthError) {
 
-	claims, err := checkRefreshToken(refreshToken)
+	claims, err := waechter.checkRefreshToken(refreshToken)
 	if err != nil {
 		return nil, &AuthError{
 			ErrorCode:   "invalidRefreshToken",
@@ -113,11 +113,11 @@ func GenerateAccessToken(refreshToken string) (*string, *AuthError) {
 	}
 
 	result, err := jwt.NewWithClaims(jwt.SigningMethodHS512, jwt.StandardClaims{
-		Issuer:    getParameters().jwtIssuer,
+		Issuer:    waechter.JwtIssuer,
 		IssuedAt:  time.Now().Unix(),
 		Subject:   claims.Subject,
-		ExpiresAt: time.Now().Add(getParameters().jwtAccessTokenLifetime).Unix(),
-	}).SignedString(getParameters().jwtSecret)
+		ExpiresAt: time.Now().Add(0).Unix(),
+	}).SignedString(waechter.JwtSecret)
 
 	if err != nil {
 		return nil, cryptError(err)

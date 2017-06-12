@@ -1,44 +1,46 @@
 package waechter
 
-import "time"
-
-var dbAdapter DBAdapter
-var parameters Parameters
-var emailAdapter EmailAdapter
-
-//Parameters define some global configuration options of the package
-type Parameters struct {
-	jwtSecret              string
-	jwtIssuer              string
-	jwtAccessTokenLifetime time.Duration
-	requireInvite          bool
-	requireActivation      bool
-
-	sessionDuration int64
+//Waechter wraps a waechter instance
+type Waechter struct {
+	// JWT Information
+	JwtSecret string
+	JwtIssuer string
+	// Email Address of administrator
+	AdminEmail string
+	// Notifications
+	NotificationLogin           bool
+	NotificationRegisterd       bool
+	NotificationAdminRegistered bool
+	// Registration related
+	RequireInvite     bool
+	RequireActivation bool
+	// Login related
+	SessionDurationDefault    int64
+	SessionDurationRememberMe int64
+	// Adapters
+	DbAdapter    DBAdapter
+	Locales      TranslationAdapter
+	EmailAdapter EmailAdapter
 }
 
-//Config configures the package
-func Config(newDBAdapter DBAdapter, newEmailAdapter EmailAdapter, params Parameters) {
-
-	dbAdapter = newDBAdapter
-	emailAdapter = newEmailAdapter
-	parameters = params
+func (waechter *Waechter) getDBAdapter() DBAdapter {
+	return waechter.DbAdapter
 }
 
-func getAdapter() DBAdapter {
-
-	return dbAdapter
-
+func (waechter *Waechter) getEmailAdapter() EmailAdapter {
+	return waechter.EmailAdapter
 }
 
-func getEmailAdapter() EmailAdapter {
-	return emailAdapter
-}
+//New creates a new waechter
+func New(jwtSecret string, jwtIssuer string, dbAdapter DBAdapter, emailAdapter EmailAdapter, translations TranslationAdapter) *Waechter {
 
-func getParameters() *Parameters {
-	return &parameters
-}
+	w := Waechter{
+		JwtSecret:    jwtSecret,
+		JwtIssuer:    jwtIssuer,
+		DbAdapter:    dbAdapter,
+		EmailAdapter: emailAdapter,
+		Locales:      translations,
+	}
 
-func main() {
-
+	return &w
 }

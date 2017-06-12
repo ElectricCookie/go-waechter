@@ -1,0 +1,15 @@
+{{ define "title" }}
+    Willkommen {{ .Username}},
+{{ end }}
+
+{{ define "confirmButton" }}
+    E-Mail verifizieren
+{{ end }}
+
+{{ define "content" }}
+    danke für Ihre Registrierung bei {{ .CompanyWebsite }}. Bitte folgen Sie dem unten stehenden Link, um Ihr Konto freizuschalten.
+{{ end }}
+
+{{ define "footer" }}
+    Nicht {{ .Username }}? Wenn Sie diese E-Mail irrtümlich erhalten haben, können Sie diese einfach ignorieren. Der erstellte Account ist nicht benutzbar, solange sie den Aktivierungslink nicht anklicken.
+{{ end }}

@@ -4,7 +4,7 @@ package waechter
 type DBAdapter interface {
 	GetUserByEmail(email string) (*User, error)
 	GetUserByUsername(username string) (*User, error)
-	GetUserById(id string) (*User, error)
+	GetUserByID(id string) (*User, error)
 
 	GetUserByUsernameOrEmail(input string) (*User, error)
 
@@ -14,5 +14,5 @@ type DBAdapter interface {
 
 	InsertRefreshToken(token *RefreshToken) error
 
-	FindRefreshToken(id string, token string) (*RefreshToken, error)
+	FindRefreshToken(userID string, tokenID string) (*RefreshToken, error)
 }

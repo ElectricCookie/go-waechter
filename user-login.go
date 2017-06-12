@@ -14,10 +14,10 @@ type LoginEmailOrUsernameData struct {
 }
 
 // LoginWithUsernameOrEmail logs a user in using email or username and password. Returns a new refresh token. Possible AuthErrors: unknownUser, cryptError, wrongPassword
-func LoginWithUsernameOrEmail(parameters LoginEmailOrUsernameData) (*string, *AuthError) {
+func (waechter *Waechter) LoginWithUsernameOrEmail(parameters LoginEmailOrUsernameData) (*string, *AuthError) {
 
 	// Retrieve the desired user
-	user, err := getAdapter().GetUserByUsernameOrEmail(parameters.UsernameOrEmail)
+	user, err := waechter.getDBAdapter().GetUserByUsernameOrEmail(parameters.UsernameOrEmail)
 
 	if err != nil {
 		return nil, &AuthError{
@@ -50,13 +50,13 @@ func LoginWithUsernameOrEmail(parameters LoginEmailOrUsernameData) (*string, *Au
 
 	// Generate a refresh token
 
-	var expires int64 = -1
+	var expires = waechter.SessionDurationRememberMe
 
-	if parameters.RememberMe {
-		expires = time.Now().Unix() + getParameters().sessionDuration
+	if !parameters.RememberMe {
+		expires = time.Now().Unix() + waechter.SessionDurationDefault
 	}
 
-	token, tokenError := GenerateRefreshToken(user.ID, expires)
+	token, tokenError := waechter.GenerateRefreshToken(user.ID, expires)
 
 	if tokenError != nil {
 		return nil, tokenError
