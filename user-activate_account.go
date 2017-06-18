@@ -9,7 +9,7 @@ func (w *Waechter) ActivateAccount(userID string, token string) *AuthError {
 	var user *User
 
 	var err error
-	if user, err := w.DbAdapter.GetUserByID(userID); err != nil {
+	if user, err = w.DbAdapter.GetUserByID(userID); err != nil {
 		return userNotFoundError(err)
 	}
 
@@ -21,7 +21,7 @@ func (w *Waechter) ActivateAccount(userID string, token string) *AuthError {
 	var tokenHash []byte
 	var tokenScryptErr error
 
-	if tokenHash, tokenScryptErr := scrypt.Key([]byte(token), []byte(user.Salt), 16384, 8, 1, 32); tokenScryptErr != nil {
+	if tokenHash, tokenScryptErr = scrypt.Key([]byte(token), []byte(user.Salt), 16384, 8, 1, 32); tokenScryptErr != nil {
 		return cryptError(err)
 	}
 
@@ -30,8 +30,6 @@ func (w *Waechter) ActivateAccount(userID string, token string) *AuthError {
 
 		if writeErr := w.DbAdapter.VerifyEmail(userID); writeErr != nil {
 			return dbWriteErr(writeErr)
-		} else {
-			return nil
 		}
 
 	} else {
@@ -42,4 +40,5 @@ func (w *Waechter) ActivateAccount(userID string, token string) *AuthError {
 		}
 	}
 
+	return nil
 }
