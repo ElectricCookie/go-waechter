@@ -58,6 +58,12 @@ func (waechter *Waechter) Register(params RegisterParams) *AuthError {
 		return randomError(verificationTokenGenerationErr)
 	}
 
+	tokenHash, tokenScryptErr := scrypt.Key([]byte(verificationToken), []byte(salt), 16384, 8, 1, 32)
+
+	if tokenScryptErr != nil {
+		return cryptError(tokenScryptErr)
+	}
+
 	passwordHash, scryptErr := scrypt.Key([]byte(params.Password), []byte(salt), 16384, 8, 1, 32)
 
 	if scryptErr != nil {
@@ -73,7 +79,7 @@ func (waechter *Waechter) Register(params RegisterParams) *AuthError {
 		Salt:              salt,
 		Language:          params.Language,
 		EmailVerfied:      false,
-		VerificationToken: verificationToken,
+		VerificationToken: string(tokenHash),
 		LastLogin:         time.Now(),
 		Registered:        time.Now(),
 	}
@@ -84,9 +90,9 @@ func (waechter *Waechter) Register(params RegisterParams) *AuthError {
 		return dbWriteErr(saveErr)
 	}
 
-	waechter.getLocales(newUser)
+	email, err := waechter.getLocales().GetRegistrationEmail(newUser.Language, newUser)
 
-	emailErr := waechter.getEmailAdapter().SendRegistrationEmail(waechter, newUser)
+	emailErr := waechter.getEmailAdapter().SendEmail(email)
 
 	if emailErr != nil {
 		return emailSendErr(emailErr)

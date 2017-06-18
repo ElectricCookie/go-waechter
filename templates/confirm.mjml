@@ -4,26 +4,24 @@
       <mj-section>
         <mj-column>
 
-          <mj-image align="center" width="120" src="{{ .CompanyLogoUrl }}"></mj-image>
+          <mj-image align="center" width="120" src="{{ .LogoURL }}"></mj-image>
 
           <mj-divider border-width="1" border-color="#ddd"></mj-divider>
 
-          <mj-text font-size="20px" color="#aaa" font-family="helvetica">{{  template "title" }}</mj-text>
+          <mj-text font-size="20px" color="#aaa" font-family="helvetica">{{  template "title" . }}</mj-text>
 
           <mj-text font-size="12px">
-
-              {{ template "content" }} 
-
+              {{ template "content" . }} 
           </mj-text>
 
           <mj-button href="{{ .ConfirmButtonTarget }}" font-family="Helvetica" background-color="#19a197" color="white">
-            {{ template "confirmButton" }} 
+            {{ template "confirmButton" . }} 
           </mj-button>
 
 
           <mj-divider border-width="1" border-color="#ddd"></mj-divider>
 
-          <mj-text font-size="10px" color="#aaa">{{ template "footer" }}</mj-text>
+          <mj-text font-size="10px" color="#aaa">{{ template "footer" . }}</mj-text>
 
         </mj-column>
       </mj-section>

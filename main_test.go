@@ -19,7 +19,15 @@ func TestRegister(t *testing.T) {
 
 	emailAdapter := NewTestEmailAdapter()
 
-	w := New("somesecret", "go-waechter", dbAdapter, emailAdapter)
+	translations := &DefaultTranslations{
+		CompanyName:     "test-company",
+		CompanyWebsite:  "test-website.com",
+		DefaultLanguage: "en",
+		Locales:         GetDefaultTranslations(),
+		ConfirmAddress:  "test-website.com/confirm/",
+	}
+
+	w := New("somesecret", "go-waechter", dbAdapter, emailAdapter, translations)
 
 	err := w.Register(RegisterParams{
 		Username:  "ElectricCookie",

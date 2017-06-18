@@ -1,0 +1,38 @@
+<html>
+
+    <head>
+        <title>Test Email Adapter</title>
+
+
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+
+
+    </head>
+
+    <body>
+
+        <div class="container" style="padding: 3rem 0;">
+            <dl class="dl-horizontal"> 
+                <dt>From</dt>
+                <dd>{{ .From }}</dd>
+
+                <dt>To</dt>
+
+                <dd>{{ .To }}</dd>
+
+                <dt>Subject</dt>
+                <dd>{{ .Subject }}</dd>
+
+                
+            </dl>
+
+            <hr/>   
+                {{ .Content}}
+            <hr />
+
+        </div>
+
+    </body>
+
+</html>

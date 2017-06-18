@@ -10,7 +10,7 @@ type DBAdapter interface {
 
 	CreateUser(*User) error
 
-	VerifyEmail(*User) error
+	VerifyEmail(userID string) error
 
 	InsertRefreshToken(token *RefreshToken) error
 

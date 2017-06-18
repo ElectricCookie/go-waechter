@@ -31,6 +31,10 @@ func (waechter *Waechter) getEmailAdapter() EmailAdapter {
 	return waechter.EmailAdapter
 }
 
+func (waechter *Waechter) getLocales() TranslationAdapter {
+	return waechter.Locales
+}
+
 //New creates a new waechter
 func New(jwtSecret string, jwtIssuer string, dbAdapter DBAdapter, emailAdapter EmailAdapter, translations TranslationAdapter) *Waechter {
 

@@ -22,22 +22,17 @@ func NewTestEmailAdapter() *TestEmailAdapter {
 }
 
 // SendCustomEmail executes the test template and saves the test result
-func (adapter *TestEmailAdapter) SendCustomEmail(waechter *Waechter, receiver *User, subject string, from string, content string) error {
+func (adapter *TestEmailAdapter) SendEmail(email *Email) error {
 
 	os.MkdirAll("./test_results/emails", os.ModePerm)
 
-	f, err := os.Create("./test_results/emails/" + from + "-" + subject + ".html")
+	f, err := os.Create("./test_results/emails/" + email.From + "-" + email.Subject + ".html")
 	if err != nil {
 		log.Println("create file: ", err)
 		return err
 	}
 
-	err = adapter.template.Execute(f, map[string]string{
-		"From":    from,
-		"To":      receiver.Email,
-		"Subject": subject,
-		"Content": content,
-	})
+	err = adapter.template.Execute(f, email)
 	if err != nil {
 		log.Print("execute: ", err)
 		return err

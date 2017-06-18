@@ -96,10 +96,10 @@ func (adapter *MongoAdapter) CreateUser(user *User) error {
 }
 
 // VerifyEmail verifies the email address of a user
-func (adapter *MongoAdapter) VerifyEmail(user *User) error {
+func (adapter *MongoAdapter) VerifyEmail(userId string) error {
 
 	return adapter.Db.C("users").Update(bson.M{
-		"_id": user.ID,
+		"_id": userId,
 	}, bson.M{
 		"$set": bson.M{
 			"emailVerified": true,
