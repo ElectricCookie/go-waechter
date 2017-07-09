@@ -2,8 +2,6 @@ package waechter
 
 import (
 	"time"
-
-	"golang.org/x/crypto/scrypt"
 )
 
 // LoginEmailOrUsernameData is the required information for logging in
@@ -28,15 +26,8 @@ func (waechter *Waechter) LoginWithUsernameOrEmail(parameters LoginEmailOrUserna
 	}
 
 	// Crypt the password using the salt of the user
-	dk, cryptError := scrypt.Key([]byte(parameters.Password), []byte(user.Salt), 16384, 8, 1, 32)
 
-	if cryptError != nil {
-		return nil, &AuthError{
-			ErrorCode:   "cryptError",
-			Description: "Something went wrong while encrypting the password",
-			IsInternal:  true,
-		}
-	}
+	dk := hash(parameters.Password, user.Salt)
 
 	if string(dk) != user.PasswordHash {
 
@@ -48,12 +39,34 @@ func (waechter *Waechter) LoginWithUsernameOrEmail(parameters LoginEmailOrUserna
 
 	}
 
+	if !user.EmailVerfied {
+		return nil, &AuthError{
+			ErrorCode:   "notActivated",
+			Description: "The email address is not verified",
+			IsInternal:  false,
+		}
+	}
+
 	// Generate a refresh token
 
-	var expires = waechter.SessionDurationRememberMe
+	var expires int64
 
-	if !parameters.RememberMe {
-		expires = time.Now().Unix() + waechter.SessionDurationDefault
+	if parameters.RememberMe {
+
+		if waechter.SessionDurationRememberMe == nil {
+			expires = -1
+		} else {
+			expires = time.Now().Add(*waechter.SessionDurationRememberMe).Unix()
+		}
+
+	} else {
+
+		if waechter.SessionDurationDefault == nil {
+			expires = time.Now().Add(time.Hour * 2).Unix()
+		} else {
+			expires = time.Now().Add(*waechter.SessionDurationDefault).Unix()
+		}
+
 	}
 
 	token, tokenError := waechter.GenerateRefreshToken(user.ID, expires)

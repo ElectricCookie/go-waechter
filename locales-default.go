@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"html/template"
 	"strings"
-
-	"github.com/davecgh/go-spew/spew"
 )
 
+//TranslationParameters contain parameters passed to a template
+type TranslationParameters map[string]interface{}
+
+//DefaultTranslations uses some predefined translations and templates for waechter
 type DefaultTranslations struct {
 	CompanyName          string
 	CompanyWebsite       string
@@ -34,9 +36,9 @@ func (adapter *DefaultTranslations) GetTranslation(lang string) *Translation {
 
 }
 
-func joinMaps(maps ...*map[string]interface{}) *map[string]interface{} {
+func joinMaps(maps ...*TranslationParameters) *TranslationParameters {
 
-	result := map[string]interface{}{}
+	result := TranslationParameters{}
 
 	for _, item := range maps {
 		if item != nil {
@@ -50,26 +52,27 @@ func joinMaps(maps ...*map[string]interface{}) *map[string]interface{} {
 	return &result
 }
 
-func (adapter *DefaultTranslations) getString(template *template.Template, user *User, params *map[string]interface{}) string {
+func (adapter *DefaultTranslations) getString(template *template.Template, user *User, params *TranslationParameters) string {
 
 	var buf bytes.Buffer
 
-	defaultParams := &map[string]interface{}{
+	defaultParams := TranslationParameters{
 		"Username":       user.Username,
 		"Email":          user.Email,
+		"LogoURL":        adapter.LogoURL,
 		"CompanyName":    adapter.CompanyName,
 		"CompanyWebsite": adapter.CompanyWebsite,
 	}
 
-	finalParams := joinMaps(defaultParams, params)
+	finalParams := joinMaps(&defaultParams, params)
 
-	spew.Dump(finalParams)
 	template.Execute(&buf, finalParams)
 
 	return buf.String()
 }
 
-func (adapter *DefaultTranslations) GetRegistrationEmail(lang string, user *User) (*Email, error) {
+//GetRegistrationEmail returns an email struct for a new user
+func (adapter *DefaultTranslations) GetRegistrationEmail(lang string, user *User, verificationToken string) (*Email, error) {
 
 	trans := adapter.GetTranslation(lang)
 
@@ -77,7 +80,9 @@ func (adapter *DefaultTranslations) GetRegistrationEmail(lang string, user *User
 		Subject: adapter.getString(trans.ActiviationSubject, user, nil),
 		From:    adapter.getString(trans.ActivationSender, user, nil),
 		To:      user.Email,
-		Content: adapter.getString(trans.ActivationContent, user, nil),
+		Content: adapter.getString(trans.ActivationContent, user, &TranslationParameters{
+			"ConfirmAddress": adapter.ConfirmAddress + "?id=" + user.ID + "&token=" + verificationToken,
+		}),
 	}, nil
 
 }
@@ -130,8 +135,8 @@ func inlineTemplate(templ string) *template.Template {
 
 }
 
-//DefaultTranslations loads default templates and strings for german and english
-func GetDefaultTranslations() []*Translation {
+//GetDefaultLocales loads default templates and strings for german and english
+func GetDefaultLocales() []*Translation {
 
 	return []*Translation{
 		&Translation{

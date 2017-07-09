@@ -4,21 +4,14 @@ import (
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
-	"golang.org/x/crypto/scrypt"
 )
 
 // GenerateRefreshToken generates a new refresh-token and saves it in the database
 func (waechter *Waechter) GenerateRefreshToken(userID string, expires int64) (*string, *AuthError) {
 
 	// Generate token
-	token, err := generateRandomString(64)
-	if err != nil {
-		return nil, &AuthError{
-			ErrorCode:   "randomError",
-			Description: "Could not generate a random token",
-			IsInternal:  true,
-		}
-	}
+
+	token := generateRandomString(32)
 
 	// Get the associated user
 
@@ -33,11 +26,7 @@ func (waechter *Waechter) GenerateRefreshToken(userID string, expires int64) (*s
 	}
 
 	// Hash token
-	derivedKey, err := scrypt.Key([]byte(token), []byte(user.Salt), 16384, 8, 1, 32)
-
-	if err != nil {
-		return nil, cryptError(err)
-	}
+	derivedKey := hash(token, user.Salt)
 
 	waechter.getDBAdapter().InsertRefreshToken(&RefreshToken{
 		Expires: expires,
@@ -52,7 +41,7 @@ func (waechter *Waechter) GenerateRefreshToken(userID string, expires int64) (*s
 		Id:       token,
 	})
 
-	resString, err := jwtToken.SignedString(waechter.JwtSecret)
+	resString, err := jwtToken.SignedString([]byte(waechter.JwtSecret))
 	if err != nil {
 		return nil, cryptError(err)
 	}
@@ -61,8 +50,8 @@ func (waechter *Waechter) GenerateRefreshToken(userID string, expires int64) (*s
 
 }
 
-// checkRefreshToken checks if a refresh token is valid. In case of invalidity a theft is assumed and the users sessions are nuked
-func (waechter *Waechter) checkRefreshToken(jwtToken string) (*jwt.StandardClaims, error) {
+// CheckRefreshToken checks if a refresh token is valid. In case of invalidity a theft is assumed and the users sessions are nuked
+func (waechter *Waechter) CheckRefreshToken(jwtToken string) (*jwt.StandardClaims, error) {
 
 	claims := jwt.StandardClaims{}
 	_, parseError := jwt.ParseWithClaims(jwtToken, &claims, func(token *jwt.Token) (interface{}, error) {
@@ -84,11 +73,7 @@ func (waechter *Waechter) checkRefreshToken(jwtToken string) (*jwt.StandardClaim
 
 	// Hash token
 
-	dk, cryptError := scrypt.Key([]byte(refreshToken), []byte(user.Salt), 16384, 8, 1, 32)
-
-	if cryptError != nil {
-		return nil, cryptError
-	}
+	dk := hash(refreshToken, user.Salt)
 
 	_, retrieveError := waechter.getDBAdapter().FindRefreshToken(userID, string(dk))
 
@@ -103,7 +88,7 @@ func (waechter *Waechter) checkRefreshToken(jwtToken string) (*jwt.StandardClaim
 // GenerateAccessToken issues a new access token based on a refresh token
 func (waechter *Waechter) GenerateAccessToken(refreshToken string) (*string, *AuthError) {
 
-	claims, err := waechter.checkRefreshToken(refreshToken)
+	claims, err := waechter.CheckRefreshToken(refreshToken)
 	if err != nil {
 		return nil, &AuthError{
 			ErrorCode:   "invalidRefreshToken",

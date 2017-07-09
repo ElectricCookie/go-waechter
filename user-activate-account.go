@@ -1,7 +1,5 @@
 package waechter
 
-import "golang.org/x/crypto/scrypt"
-
 //ActivateAccount activates a user account
 func (w *Waechter) ActivateAccount(userID string, token string) *AuthError {
 
@@ -9,7 +7,7 @@ func (w *Waechter) ActivateAccount(userID string, token string) *AuthError {
 	var user *User
 
 	var err error
-	if user, err = w.DbAdapter.GetUserByID(userID); err != nil {
+	if user, err = w.DbAdapter.GetUserByID(userID); err != nil || user == nil {
 		return userNotFoundError(err)
 	}
 
@@ -18,15 +16,11 @@ func (w *Waechter) ActivateAccount(userID string, token string) *AuthError {
 	}
 
 	// Hash the token
-	var tokenHash []byte
-	var tokenScryptErr error
 
-	if tokenHash, tokenScryptErr = scrypt.Key([]byte(token), []byte(user.Salt), 16384, 8, 1, 32); tokenScryptErr != nil {
-		return cryptError(err)
-	}
+	tokenHash := hash(token, user.Salt)
 
 	// Check if tokens match
-	if string(tokenHash) == user.VerificationToken {
+	if tokenHash == user.VerificationToken {
 
 		if writeErr := w.DbAdapter.VerifyEmail(userID); writeErr != nil {
 			return dbWriteErr(writeErr)

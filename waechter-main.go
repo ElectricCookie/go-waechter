@@ -1,5 +1,9 @@
 package waechter
 
+import (
+	"time"
+)
+
 //Waechter wraps a waechter instance
 type Waechter struct {
 	// JWT Information
@@ -15,11 +19,11 @@ type Waechter struct {
 	RequireInvite     bool
 	RequireActivation bool
 	// Login related
-	SessionDurationDefault    int64
-	SessionDurationRememberMe int64
+	SessionDurationDefault    *time.Duration
+	SessionDurationRememberMe *time.Duration
 	// Adapters
 	DbAdapter    DBAdapter
-	Locales      TranslationAdapter
+	Locales      LocalesAdapter
 	EmailAdapter EmailAdapter
 }
 
@@ -31,19 +35,21 @@ func (waechter *Waechter) getEmailAdapter() EmailAdapter {
 	return waechter.EmailAdapter
 }
 
-func (waechter *Waechter) getLocales() TranslationAdapter {
+func (waechter *Waechter) getLocales() LocalesAdapter {
 	return waechter.Locales
 }
 
 //New creates a new waechter
-func New(jwtSecret string, jwtIssuer string, dbAdapter DBAdapter, emailAdapter EmailAdapter, translations TranslationAdapter) *Waechter {
+func New(jwtSecret string, jwtIssuer string, dbAdapter DBAdapter, emailAdapter EmailAdapter, translations LocalesAdapter) *Waechter {
 
 	w := Waechter{
-		JwtSecret:    jwtSecret,
-		JwtIssuer:    jwtIssuer,
-		DbAdapter:    dbAdapter,
-		EmailAdapter: emailAdapter,
-		Locales:      translations,
+		JwtSecret:                 jwtSecret,
+		JwtIssuer:                 jwtIssuer,
+		DbAdapter:                 dbAdapter,
+		SessionDurationDefault:    nil,
+		SessionDurationRememberMe: nil,
+		EmailAdapter:              emailAdapter,
+		Locales:                   translations,
 	}
 
 	return &w

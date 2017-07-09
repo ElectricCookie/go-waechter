@@ -21,7 +21,7 @@ func NewTestEmailAdapter() *TestEmailAdapter {
 	}
 }
 
-// SendCustomEmail executes the test template and saves the test result
+//SendEmail executes the test template and saves the test result
 func (adapter *TestEmailAdapter) SendEmail(email *Email) error {
 
 	os.MkdirAll("./test_results/emails", os.ModePerm)

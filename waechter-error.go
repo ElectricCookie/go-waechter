@@ -35,6 +35,15 @@ func randomError(err error) *AuthError {
 	}
 }
 
+func invalidParameters(err error) *AuthError {
+	return &AuthError{
+		ErrorCode:   "invalidParameters",
+		Description: "The parameters passed were not valid",
+		IsInternal:  false,
+		Err:         err,
+	}
+}
+
 func dbWriteErr(err error) *AuthError {
 	return &AuthError{
 		ErrorCode:   "dbWriteErr",

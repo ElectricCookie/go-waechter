@@ -14,7 +14,7 @@
               {{ template "content" . }} 
           </mj-text>
 
-          <mj-button href="{{ .ConfirmButtonTarget }}" font-family="Helvetica" background-color="#19a197" color="white">
+          <mj-button href="{{ .ConfirmAddress }}" font-family="Helvetica" background-color="#19a197" color="white">
             {{ template "confirmButton" . }} 
           </mj-button>
 

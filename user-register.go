@@ -3,28 +3,32 @@ package waechter
 import (
 	"time"
 
-	"golang.org/x/crypto/scrypt"
+	validator "gopkg.in/asaskevich/govalidator.v4"
 )
 
 // RegisterParams are the parameters used to register a new user.
 type RegisterParams struct {
-	Username  string `validate:"required"`
-	Password  string `validate:"required"`
-	Email     string `validate:"required,email"`
-	FirstName string `validate:"required"`
-	LastName  string `validate:"required"`
-	Language  string `validate:"required"`
+	Username  string `valid:"required"`
+	Password  string `valid:"required"`
+	Email     string `valid:"required,email"`
+	FirstName string `valid:"required"`
+	LastName  string `valid:"required"`
+	Language  string `valid:"required"`
 }
 
 //Register a new user
-func (waechter *Waechter) Register(params RegisterParams) *AuthError {
-
+func (waechter *Waechter) Register(params RegisterParams) (*string, *AuthError) {
 	// Check if user exists
+	valid, validationErrs := validator.ValidateStruct(params)
+
+	if !valid {
+		return nil, invalidParameters(validationErrs)
+	}
 
 	_, err := waechter.getDBAdapter().GetUserByUsername(params.Username)
 
 	if err == nil {
-		return &AuthError{
+		return nil, &AuthError{
 			ErrorCode:   "usernameUsed",
 			Description: "The desired username is already in use",
 			IsInternal:  false,
@@ -36,41 +40,26 @@ func (waechter *Waechter) Register(params RegisterParams) *AuthError {
 	_, err = waechter.getDBAdapter().GetUserByEmail(params.Email)
 
 	if err == nil {
-		return &AuthError{
-			ErrorCode:   "emailTaken",
+		return nil, &AuthError{
+			ErrorCode:   "emailUsed",
 			Description: "The desired email is already in use",
 		}
 	}
 
 	// Generate salt
 
-	salt, saltGenerationErr := generateRandomString(64)
-
-	if saltGenerationErr != nil {
-		return randomError(saltGenerationErr)
-	}
+	salt := generateRandomString(32)
 
 	// Generate activation/verfication token
 
-	verificationToken, verificationTokenGenerationErr := generateRandomString(64)
+	verificationToken := generateRandomString(32)
 
-	if verificationTokenGenerationErr != nil {
-		return randomError(verificationTokenGenerationErr)
-	}
+	tokenHash := hash(verificationToken, salt)
 
-	tokenHash, tokenScryptErr := scrypt.Key([]byte(verificationToken), []byte(salt), 16384, 8, 1, 32)
-
-	if tokenScryptErr != nil {
-		return cryptError(tokenScryptErr)
-	}
-
-	passwordHash, scryptErr := scrypt.Key([]byte(params.Password), []byte(salt), 16384, 8, 1, 32)
-
-	if scryptErr != nil {
-		return cryptError(scryptErr)
-	}
+	passwordHash := hash(params.Password, salt)
 
 	newUser := &User{
+		ID:                generateRandomString(32),
 		Username:          params.Username,
 		Email:             params.Email,
 		FirstName:         params.FirstName,
@@ -87,16 +76,16 @@ func (waechter *Waechter) Register(params RegisterParams) *AuthError {
 	saveErr := waechter.getDBAdapter().CreateUser(newUser)
 
 	if saveErr != nil {
-		return dbWriteErr(saveErr)
+		return nil, dbWriteErr(saveErr)
 	}
 
-	email, err := waechter.getLocales().GetRegistrationEmail(newUser.Language, newUser)
+	email, err := waechter.getLocales().GetRegistrationEmail(newUser.Language, newUser, verificationToken)
 
 	emailErr := waechter.getEmailAdapter().SendEmail(email)
 
 	if emailErr != nil {
-		return emailSendErr(emailErr)
+		return nil, emailSendErr(emailErr)
 	}
 
-	return nil
+	return &verificationToken, nil
 }

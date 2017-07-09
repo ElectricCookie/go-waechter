@@ -90,16 +90,14 @@ func (adapter *MongoAdapter) GetUserByUsernameOrEmail(input string) (*User, erro
 
 // CreateUser insert new user in DB
 func (adapter *MongoAdapter) CreateUser(user *User) error {
-
 	return adapter.Db.C("users").Insert(user)
-
 }
 
 // VerifyEmail verifies the email address of a user
-func (adapter *MongoAdapter) VerifyEmail(userId string) error {
+func (adapter *MongoAdapter) VerifyEmail(userID string) error {
 
 	return adapter.Db.C("users").Update(bson.M{
-		"_id": userId,
+		"_id": userID,
 	}, bson.M{
 		"$set": bson.M{
 			"emailVerified": true,
@@ -118,7 +116,7 @@ func (adapter *MongoAdapter) FindRefreshToken(userID string, tokenID string) (*R
 
 	token := RefreshToken{}
 
-	err := adapter.Db.C("users").Find(bson.M{
+	err := adapter.Db.C("refreshTokens").Find(bson.M{
 		"userId": userID,
 		"_id":    tokenID,
 	}).One(&token)
