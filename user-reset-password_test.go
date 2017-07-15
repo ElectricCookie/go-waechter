@@ -6,7 +6,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("User:ForgotPassword", func() {
+var _ = Describe("User:ResetPassword", func() {
 
 	var w *waechter.Waechter
 	var token *string
@@ -42,57 +42,35 @@ var _ = Describe("User:ForgotPassword", func() {
 
 		user, _ = w.DbAdapter.GetUserByUsername("ElectricCookie")
 
-		token, _ = w.SendVerificationEmail(user.Email)
+		verfiy, _ := w.SendVerificationEmail(user.Email)
+
+		w.VerifyEmailAddress(user.ID, *verfiy)
 
 	})
 
-	Context("Email was verified", func() {
+	Context("Forgot password was called", func() {
 
 		BeforeEach(func() {
-			w.VerifyEmailAddress(user.ID, *token)
+			token, _ = w.ForgotPassword(user.Email)
 		})
 
-		It("should fail if the email is unknown", func() {
+		It("should reset the password if all paremeters are correct", func() {
 
-			_, err := w.ForgotPassword("unknownEmail@something.com")
+			err := w.ResetPassword(user.ID, *token, "newPassword")
 
-			Expect(err).ToNot(BeNil())
-			Expect(err.ErrorCode).To(Equal("userNotFound"))
+			Expect(err).To(BeNil())
 
-		})
+			// Do a login
 
-		It("should fail if the parameter passed is not an email", func() {
+			_, errLogin := w.LoginWithUsernameOrEmail(waechter.LoginEmailOrUsernameData{
+				UsernameOrEmail: user.Username,
+				Password:        "newPassword",
+				RememberMe:      false,
+			})
 
-			_, err := w.ForgotPassword("123coaks")
-			Expect(err).ToNot(BeNil())
-			Expect(err.ErrorCode).To(Equal("invalidParameters"))
-
-		})
-
-		It("should always create a new token in the DB", func() {
-
-			w.ForgotPassword("somebody@something.com")
-
-			userA, _ := w.DbAdapter.GetUserByUsername("ElectricCookie")
-
-			Expect(user.ForgotPasswordToken).NotTo(Equal("deactivated"))
-
-			w.ForgotPassword("somebody@something.com")
-
-			userB, _ := w.DbAdapter.GetUserByUsername("ElectricCookie")
-
-			Expect(userA.ForgotPasswordToken).ToNot(Equal(userB.ForgotPasswordToken))
+			Expect(errLogin).To(BeNil())
 
 		})
-
-	})
-
-	It("should fail if the email is not verified", func() {
-
-		_, err := w.ForgotPassword("somebody@something.com")
-
-		Expect(err).ToNot(BeNil())
-		Expect(err.ErrorCode).To(Equal("emailNotVerified"))
 
 	})
 

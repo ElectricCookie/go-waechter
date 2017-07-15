@@ -159,7 +159,7 @@ func (adapter *MongoAdapter) SetPassword(userID string, hash string) error {
 		"_id": userID,
 	}, bson.M{
 		"$set": bson.M{
-			"password": hash,
+			"passwordHash": hash,
 		},
 	})
 }

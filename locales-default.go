@@ -35,6 +35,10 @@ func GetDefaultLocales() []*Translation {
 			ForgotPasswordSender:  inlineTemplate("accounts@{{ .CompanyWebsite }}"),
 			ForgotPasswordSubject: inlineTemplate("Restore your password at {{ .CompanyName }}"),
 			ForgotPasswordContent: loadTemplate("templates/forgot-password-en.html", "templates/forgot-password.html"),
+
+			PasswordResetSender:  inlineTemplate("accounts@{{ .CompanyWebsite }}"),
+			PasswordResetSubject: inlineTemplate("Your password has been changed"),
+			PasswordResetContent: loadTemplate("templates/password-changed-en.html", "templates/password-changed.html"),
 		},
 		&Translation{
 			LanguageCode: "de",
@@ -46,6 +50,10 @@ func GetDefaultLocales() []*Translation {
 			ForgotPasswordSender:  inlineTemplate("accounts@{{ .CompanyWebsite }}"),
 			ForgotPasswordSubject: inlineTemplate("Ihr Passwort bei {{ .CompanyName }} zurücksetzen"),
 			ForgotPasswordContent: loadTemplate("templates/forgot-password-de.html", "templates/forgot-password.html"),
+
+			PasswordResetSender:  inlineTemplate("accounts@{{ .CompanyWebsite }}"),
+			PasswordResetSubject: inlineTemplate("Ihr Passwort wurde geändert."),
+			PasswordResetContent: loadTemplate("templates/password-changed-de.html", "templates/password-changed.html"),
 		},
 	}
 
@@ -171,9 +179,9 @@ func (adapter *DefaultTranslations) GetForgotPasswordEmail(user *User, passwordT
 
 	return &Email{
 		Subject: adapter.getString(trans.ForgotPasswordSubject, user, nil),
-		From:    adapter.getString(trans.ActivationSender, user, nil),
+		From:    adapter.getString(trans.ForgotPasswordSender, user, nil),
 		To:      user.Email,
-		Content: adapter.getString(trans.ActivationContent, user, &TranslationParameters{
+		Content: adapter.getString(trans.ForgotPasswordContent, user, &TranslationParameters{
 			"ResetAddress": adapter.ResetPasswordAddress + "?id=" + user.ID + "&token=" + passwordToken,
 		}),
 	}, nil
@@ -189,7 +197,7 @@ func (adapter *DefaultTranslations) GetPasswordResetEmail(user *User) (*Email, e
 		Subject: adapter.getString(trans.PasswordResetSubject, user, nil),
 		From:    adapter.getString(trans.PasswordResetSender, user, nil),
 		To:      user.Email,
-		Content: adapter.getString(trans.ActivationContent, user, &TranslationParameters{}),
+		Content: adapter.getString(trans.PasswordResetContent, user, &TranslationParameters{}),
 	}, nil
 
 }

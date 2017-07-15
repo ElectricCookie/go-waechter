@@ -8,20 +8,20 @@
 
           <mj-divider border-width="1" border-color="#ddd"></mj-divider>
 
-          <mj-text font-size="20px" color="#aaa" font-family="helvetica">{{  template "title" . }}</mj-text>
+          <mj-text font-size="20px" color="#aaa" font-family="helvetica">{{  template "title-confirm" . }}</mj-text>
 
           <mj-text font-size="12px">
-              {{ template "content" . }} 
+              {{ template "content-confirm" . }} 
           </mj-text>
 
           <mj-button href="{{ .ConfirmAddress }}" font-family="Helvetica" background-color="#19a197" color="white">
-            {{ template "confirmButton" . }} 
+            {{ template "button-confirm" . }} 
           </mj-button>
 
 
           <mj-divider border-width="1" border-color="#ddd"></mj-divider>
 
-          <mj-text font-size="10px" color="#aaa">{{ template "footer" . }}</mj-text>
+          <mj-text font-size="10px" color="#aaa">{{ template "footer-confirm" . }}</mj-text>
 
         </mj-column>
       </mj-section>
