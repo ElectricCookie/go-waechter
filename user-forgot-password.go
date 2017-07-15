@@ -35,7 +35,7 @@ func (w *Waechter) ForgotPassword(emailAddress string) (*string, *AuthError) {
 
 	// Send email
 
-	email, err := w.Locales.GetForgotPasswordEmail(user.Language, user, token)
+	email, err := w.Locales.GetForgotPasswordEmail(user, token)
 
 	if err != nil {
 		return nil, internalError(err)

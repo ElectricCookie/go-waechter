@@ -28,18 +28,24 @@ func GetDefaultLocales() []*Translation {
 		&Translation{
 			LanguageCode: "en",
 
-			ActivationSender:   inlineTemplate("activation@{{ .CompanyWebsite }}.com"),
+			ActivationSender:   inlineTemplate("accounts@{{ .CompanyWebsite }}"),
 			ActiviationSubject: inlineTemplate("Welcome at {{ .CompanyName }}! Verify your email address"),
-			ActivationTitle:    inlineTemplate("Welcome {{ .Username }},"),
 			ActivationContent:  loadTemplate("templates/confirm-en.html", "templates/confirm.html"),
+
+			ForgotPasswordSender:  inlineTemplate("accounts@{{ .CompanyWebsite }}"),
+			ForgotPasswordSubject: inlineTemplate("Restore your password at {{ .CompanyName }}"),
+			ForgotPasswordContent: loadTemplate("templates/forgot-password-en.html", "templates/forgot-password.html"),
 		},
 		&Translation{
 			LanguageCode: "de",
 
-			ActivationSender:   inlineTemplate("aktivierung@{{ .CompanyWebsite }}"),
+			ActivationSender:   inlineTemplate("accounts@{{ .CompanyWebsite }}"),
 			ActiviationSubject: inlineTemplate("Willkommen bei {{ .CompanyName }}! Aktivieren Sie jetzt Ihren Account"),
-			ActivationTitle:    inlineTemplate("Willkommen {{ .Username }},"),
 			ActivationContent:  loadTemplate("templates/confirm.html", "templates/confirm-de.html"),
+
+			ForgotPasswordSender:  inlineTemplate("accounts@{{ .CompanyWebsite }}"),
+			ForgotPasswordSubject: inlineTemplate("Ihr Passwort bei {{ .CompanyName }} zurücksetzen"),
+			ForgotPasswordContent: loadTemplate("templates/forgot-password-de.html", "templates/forgot-password.html"),
 		},
 	}
 
@@ -101,16 +107,15 @@ type Translation struct {
 
 	ActiviationSubject *template.Template
 	ActivationContent  *template.Template
-	ActivationTitle    *template.Template
 	ActivationSender   *template.Template
 
 	ForgotPasswordSubject *template.Template
 	ForgotPasswordContent *template.Template
 	ForgotPasswordSender  *template.Template
 
-	PasswordResetSubject string
-	PasswordResetContent string
-	PasswordResetSender  string
+	PasswordResetSubject *template.Template
+	PasswordResetContent *template.Template
+	PasswordResetSender  *template.Template
 
 	LoginNotificationSubject string
 	LoginNotificationContent string
@@ -144,9 +149,9 @@ func inlineTemplate(templ string) *template.Template {
 }
 
 //GetRegistrationEmail returns an email struct for a new user
-func (adapter *DefaultTranslations) GetRegistrationEmail(lang string, user *User, verificationToken string) (*Email, error) {
+func (adapter *DefaultTranslations) GetRegistrationEmail(user *User, verificationToken string) (*Email, error) {
 
-	trans := adapter.GetTranslation(lang)
+	trans := adapter.GetTranslation(user.Language)
 
 	return &Email{
 		Subject: adapter.getString(trans.ActiviationSubject, user, nil),
@@ -160,9 +165,9 @@ func (adapter *DefaultTranslations) GetRegistrationEmail(lang string, user *User
 }
 
 //GetForgotPasswordEmail sends an email to the user with a link to reset their password
-func (adapter *DefaultTranslations) GetForgotPasswordEmail(lang string, user *User, passwordToken string) (*Email, error) {
+func (adapter *DefaultTranslations) GetForgotPasswordEmail(user *User, passwordToken string) (*Email, error) {
 
-	trans := adapter.GetTranslation(lang)
+	trans := adapter.GetTranslation(user.Language)
 
 	return &Email{
 		Subject: adapter.getString(trans.ForgotPasswordSubject, user, nil),
@@ -171,6 +176,20 @@ func (adapter *DefaultTranslations) GetForgotPasswordEmail(lang string, user *Us
 		Content: adapter.getString(trans.ActivationContent, user, &TranslationParameters{
 			"ResetAddress": adapter.ResetPasswordAddress + "?id=" + user.ID + "&token=" + passwordToken,
 		}),
+	}, nil
+
+}
+
+//GetPasswordResetEmail return an email object for the notification of a reset password
+func (adapter *DefaultTranslations) GetPasswordResetEmail(user *User) (*Email, error) {
+
+	trans := adapter.GetTranslation(user.Language)
+
+	return &Email{
+		Subject: adapter.getString(trans.PasswordResetSubject, user, nil),
+		From:    adapter.getString(trans.PasswordResetSender, user, nil),
+		To:      user.Email,
+		Content: adapter.getString(trans.ActivationContent, user, &TranslationParameters{}),
 	}, nil
 
 }

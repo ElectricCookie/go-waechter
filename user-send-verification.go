@@ -31,7 +31,7 @@ func (waechter *Waechter) SendVerificationEmail(emailAddress string) (*string, *
 
 	waechter.getDBAdapter().SetVerificationToken(user.ID, string(tokenHash))
 
-	email, err := waechter.getLocales().GetRegistrationEmail(user.Language, user, verificationToken)
+	email, err := waechter.getLocales().GetRegistrationEmail(user, verificationToken)
 
 	emailErr := waechter.getEmailAdapter().SendEmail(email)
 

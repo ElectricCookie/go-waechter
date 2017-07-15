@@ -152,3 +152,14 @@ func (adapter *MongoAdapter) SetVerificationToken(userID string, token string) e
 		},
 	})
 }
+
+//SetPassword sets the password
+func (adapter *MongoAdapter) SetPassword(userID string, hash string) error {
+	return adapter.Db.C("users").Update(bson.M{
+		"_id": userID,
+	}, bson.M{
+		"$set": bson.M{
+			"password": hash,
+		},
+	})
+}
