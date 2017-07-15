@@ -8,24 +8,25 @@ Go Wächter [german = guard] is a library to implement JWT auth in go apps. It i
 ---
 
 ## Current status
-**Currently working on the basic functionality. This package is not ready for consumption yet. There are no tests either yet.**
+**Currently working on the basic functionality. This package is not ready for consumption yet.**
 
 ## Features
 
-- [x] Auth using JWT, Access/Refresh Token architecture
-- [x] Registration
-- [ ] Password Recovery
 - [ ] Administration Notifications
 - [ ] Brute-Force Protection
 - [ ] Invite System 
 - [ ] Notification Settings
+- [ ] Planned: OAuth, Check IP location
+- [x] Auth using JWT, Access/Refresh Token architecture
+- [x] Registration
+- [x] Password Recovery
 - [x] Email Verification 
 - [x] Adapter based allows to add custom email and database connections 
 - [x] Fully internationalized. Allows to translate all messages and emails
 - [x] Comes with beautiful email templates, but you can add your own
 - [x] Default adapters included for mongoDB (using mgo) and SMTP
 - [x] Configurable access token generation builds the foundation for complex auth needs.
-- [ ] Planned: OAuth, Check IP location
+
 
 
 ## Security
