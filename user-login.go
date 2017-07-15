@@ -41,7 +41,7 @@ func (waechter *Waechter) LoginWithUsernameOrEmail(parameters LoginEmailOrUserna
 
 	if !user.EmailVerfied {
 		return nil, &AuthError{
-			ErrorCode:   "notActivated",
+			ErrorCode:   "emailNotVerified",
 			Description: "The email address is not verified",
 			IsInternal:  false,
 		}

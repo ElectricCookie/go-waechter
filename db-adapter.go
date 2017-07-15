@@ -14,5 +14,9 @@ type DBAdapter interface {
 
 	InsertRefreshToken(token *RefreshToken) error
 
+	SetForgotPasswordToken(userID string, token string) error
+
+	SetVerificationToken(userID string, token string) error
+
 	FindRefreshToken(userID string, tokenID string) (*RefreshToken, error)
 }

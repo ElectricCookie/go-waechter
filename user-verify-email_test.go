@@ -6,7 +6,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("User:Register", func() {
+var _ = Describe("User:VerifyEmailAddress", func() {
 
 	var w *waechter.Waechter
 	var token *string
@@ -18,20 +18,20 @@ var _ = Describe("User:Register", func() {
 
 		dbAdapter.Db.DropDatabase()
 
-		emailAdapter := waechter.NewTestEmailAdapter()
+		emailAdapter := NewTestEmailAdapter()
 
 		translations := &waechter.DefaultTranslations{
-			CompanyName:     "test-company",
-			CompanyWebsite:  "test-website.com",
-			LogoURL:         "https://codyhouse.co/demo/advanced-search-form/img/cd-logo.svg", //Shoutout to codyhouse.co for this awesome placeholder
-			DefaultLanguage: "en",
-			Locales:         waechter.GetDefaultLocales(),
-			ConfirmAddress:  "test-website.com/confirm/",
+			CompanyName:         "test-company",
+			CompanyWebsite:      "test-website.com",
+			LogoURL:             "https://codyhouse.co/demo/advanced-search-form/img/cd-logo.svg", //Shoutout to codyhouse.co for this awesome placeholder
+			DefaultLanguage:     "en",
+			Locales:             waechter.GetDefaultLocales(),
+			ConfirmEmailAddress: "test-website.com/confirm/",
 		}
 
 		w = waechter.New("somesecret", "go-waechter", dbAdapter, emailAdapter, translations)
 
-		token, _ = w.Register(waechter.RegisterParams{
+		w.Register(waechter.RegisterParams{
 			Username:  "ElectricCookie",
 			Email:     "somebody@something.com",
 			Password:  "test123",
@@ -41,11 +41,14 @@ var _ = Describe("User:Register", func() {
 		})
 
 		user, _ = w.DbAdapter.GetUserByUsername("ElectricCookie")
+
+		token, _ = w.SendVerificationEmail(user.Email)
+
 	})
 
-	It("should activate an account if the token is correct", func() {
+	It("should verify the email address if the token is correct", func() {
 
-		err := w.ActivateAccount(user.ID, *token)
+		err := w.VerifyEmailAddress(user.ID, *token)
 
 		Expect(err).To(BeNil())
 
@@ -55,8 +58,8 @@ var _ = Describe("User:Register", func() {
 
 	})
 
-	It("should not activate an account if the token is incorrect", func() {
-		err := w.ActivateAccount(user.ID, "Invalid token")
+	It("should not verify the email address if the token is incorrect", func() {
+		err := w.VerifyEmailAddress(user.ID, "Invalid token")
 
 		Expect(err).ToNot(BeNil())
 		Expect(err.ErrorCode).To(Equal("invalidToken"))

@@ -17,18 +17,18 @@ type RegisterParams struct {
 }
 
 //Register a new user
-func (waechter *Waechter) Register(params RegisterParams) (*string, *AuthError) {
+func (waechter *Waechter) Register(params RegisterParams) *AuthError {
 	// Check if user exists
 	valid, validationErrs := validator.ValidateStruct(params)
 
 	if !valid {
-		return nil, invalidParameters(validationErrs)
+		return invalidParameters(validationErrs)
 	}
 
 	_, err := waechter.getDBAdapter().GetUserByUsername(params.Username)
 
 	if err == nil {
-		return nil, &AuthError{
+		return &AuthError{
 			ErrorCode:   "usernameUsed",
 			Description: "The desired username is already in use",
 			IsInternal:  false,
@@ -40,7 +40,7 @@ func (waechter *Waechter) Register(params RegisterParams) (*string, *AuthError) 
 	_, err = waechter.getDBAdapter().GetUserByEmail(params.Email)
 
 	if err == nil {
-		return nil, &AuthError{
+		return &AuthError{
 			ErrorCode:   "emailUsed",
 			Description: "The desired email is already in use",
 		}
@@ -51,10 +51,6 @@ func (waechter *Waechter) Register(params RegisterParams) (*string, *AuthError) 
 	salt := generateRandomString(32)
 
 	// Generate activation/verfication token
-
-	verificationToken := generateRandomString(32)
-
-	tokenHash := hash(verificationToken, salt)
 
 	passwordHash := hash(params.Password, salt)
 
@@ -68,7 +64,7 @@ func (waechter *Waechter) Register(params RegisterParams) (*string, *AuthError) 
 		Salt:              salt,
 		Language:          params.Language,
 		EmailVerfied:      false,
-		VerificationToken: string(tokenHash),
+		VerificationToken: "deactivated",
 		LastLogin:         time.Now(),
 		Registered:        time.Now(),
 	}
@@ -76,16 +72,8 @@ func (waechter *Waechter) Register(params RegisterParams) (*string, *AuthError) 
 	saveErr := waechter.getDBAdapter().CreateUser(newUser)
 
 	if saveErr != nil {
-		return nil, dbWriteErr(saveErr)
+		return dbWriteErr(saveErr)
 	}
 
-	email, err := waechter.getLocales().GetRegistrationEmail(newUser.Language, newUser, verificationToken)
-
-	emailErr := waechter.getEmailAdapter().SendEmail(email)
-
-	if emailErr != nil {
-		return nil, emailSendErr(emailErr)
-	}
-
-	return &verificationToken, nil
+	return nil
 }

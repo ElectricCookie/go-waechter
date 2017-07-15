@@ -1,9 +1,11 @@
-package waechter
+package waechter_test
 
 import (
 	"log"
 	"os"
 	"text/template"
+
+	waechter "github.com/ElectricCookie/go-waechter"
 )
 
 //TestEmailAdapter is used in tests. It writes emails to files instead of sending them.
@@ -22,7 +24,7 @@ func NewTestEmailAdapter() *TestEmailAdapter {
 }
 
 //SendEmail executes the test template and saves the test result
-func (adapter *TestEmailAdapter) SendEmail(email *Email) error {
+func (adapter *TestEmailAdapter) SendEmail(email *waechter.Email) error {
 
 	os.MkdirAll("./test_results/emails", os.ModePerm)
 

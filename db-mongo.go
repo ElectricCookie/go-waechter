@@ -128,3 +128,27 @@ func (adapter *MongoAdapter) FindRefreshToken(userID string, tokenID string) (*R
 	return &token, nil
 
 }
+
+// SetForgotPasswordToken writes a "forgotPasswordToken" to the db
+func (adapter *MongoAdapter) SetForgotPasswordToken(userID string, token string) error {
+
+	return adapter.Db.C("users").Update(bson.M{
+		"_id": userID,
+	}, bson.M{
+		"$set": bson.M{
+			"forgotPasswordToken": token,
+		},
+	})
+
+}
+
+//SetVerificationToken writes a "verificationToken" to the db
+func (adapter *MongoAdapter) SetVerificationToken(userID string, token string) error {
+	return adapter.Db.C("users").Update(bson.M{
+		"_id": userID,
+	}, bson.M{
+		"$set": bson.M{
+			"verificationToken": token,
+		},
+	})
+}

@@ -8,6 +8,15 @@ type AuthError struct {
 	Err         error
 }
 
+func internalError(err error) *AuthError {
+	return &AuthError{
+		ErrorCode:   "internalError",
+		Description: "Unknown internal error",
+		IsInternal:  true,
+		Err:         err,
+	}
+}
+
 func cryptError(err error) *AuthError {
 	return &AuthError{
 		ErrorCode:   "cryptError",

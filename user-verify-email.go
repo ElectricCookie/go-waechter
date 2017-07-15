@@ -1,7 +1,7 @@
 package waechter
 
-//ActivateAccount activates a user account
-func (w *Waechter) ActivateAccount(userID string, token string) *AuthError {
+//VerifyEmailAddress verifies the email address
+func (w *Waechter) VerifyEmailAddress(userID string, token string) *AuthError {
 
 	// Find user to retrieve token and salt
 	var user *User
@@ -21,7 +21,6 @@ func (w *Waechter) ActivateAccount(userID string, token string) *AuthError {
 
 	// Check if tokens match
 	if tokenHash == user.VerificationToken {
-
 		if writeErr := w.DbAdapter.VerifyEmail(userID); writeErr != nil {
 			return dbWriteErr(writeErr)
 		}

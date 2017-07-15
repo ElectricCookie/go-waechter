@@ -16,15 +16,15 @@ var _ = Describe("User:Register", func() {
 
 		dbAdapter.Db.DropDatabase()
 
-		emailAdapter := waechter.NewTestEmailAdapter()
+		emailAdapter := NewTestEmailAdapter()
 
 		translations := &waechter.DefaultTranslations{
-			CompanyName:     "test-company",
-			CompanyWebsite:  "test-website.com",
-			LogoURL:         "https://codyhouse.co/demo/advanced-search-form/img/cd-logo.svg", //Shoutout to codyhouse.co for this awesome placeholder
-			DefaultLanguage: "en",
-			Locales:         waechter.GetDefaultLocales(),
-			ConfirmAddress:  "test-website.com/confirm/",
+			CompanyName:         "test-company",
+			CompanyWebsite:      "test-website.com",
+			LogoURL:             "https://codyhouse.co/demo/advanced-search-form/img/cd-logo.svg", //Shoutout to codyhouse.co for this awesome placeholder
+			DefaultLanguage:     "en",
+			Locales:             waechter.GetDefaultLocales(),
+			ConfirmEmailAddress: "test-website.com/confirm/",
 		}
 
 		w = waechter.New("somesecret", "go-waechter", dbAdapter, emailAdapter, translations)
@@ -50,7 +50,7 @@ var _ = Describe("User:Register", func() {
 				Expect(err).To(BeNil())
 			})
 
-			It("Should create an unactivated account", func() {
+			It("Should create a non verified account", func() {
 				user, err := w.DbAdapter.GetUserByUsername("ElectricCookie")
 				Expect(user.EmailVerfied).To(BeFalse())
 				Expect(err).To(BeNil())
@@ -60,7 +60,7 @@ var _ = Describe("User:Register", func() {
 
 		It("should fail if the username is taken", func() {
 
-			_, errOne := w.Register(waechter.RegisterParams{
+			errOne := w.Register(waechter.RegisterParams{
 				Username:  "ElectricCookie",
 				Email:     "somebody@something.com",
 				Password:  "test123",
@@ -69,7 +69,7 @@ var _ = Describe("User:Register", func() {
 				LastName:  "Cookie",
 			})
 
-			_, errTwo := w.Register(waechter.RegisterParams{
+			errTwo := w.Register(waechter.RegisterParams{
 				Username:  "ElectricCookie",
 				Email:     "somebody@something123.com",
 				Password:  "test123",
@@ -87,7 +87,7 @@ var _ = Describe("User:Register", func() {
 
 		It("should fail if the email is taken", func() {
 
-			_, errOne := w.Register(waechter.RegisterParams{
+			errOne := w.Register(waechter.RegisterParams{
 				Username:  "ElectricCookie",
 				Email:     "somebody@something.com",
 				Password:  "test123",
@@ -96,7 +96,7 @@ var _ = Describe("User:Register", func() {
 				LastName:  "Cookie",
 			})
 
-			_, errTwo := w.Register(waechter.RegisterParams{
+			errTwo := w.Register(waechter.RegisterParams{
 				Username:  "ElectricCookie2",
 				Email:     "somebody@something.com",
 				Password:  "test123",
@@ -115,7 +115,7 @@ var _ = Describe("User:Register", func() {
 		Context("check parameters of registration", func() {
 
 			It("should fail if something is missing", func() {
-				_, err := w.Register(waechter.RegisterParams{
+				err := w.Register(waechter.RegisterParams{
 					// Username is missing here
 					Email:     "test@something.com",
 					Password:  "test123",
@@ -128,7 +128,7 @@ var _ = Describe("User:Register", func() {
 			})
 
 			It("should fail if the email is invalid", func() {
-				_, err := w.Register(waechter.RegisterParams{
+				err := w.Register(waechter.RegisterParams{
 					Username:  "ElectricCookie",
 					Email:     "foo", // Invalid email
 					Password:  "test123",

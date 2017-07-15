@@ -17,8 +17,32 @@ type DefaultTranslations struct {
 	LogoURL              string
 	Locales              []*Translation
 	DefaultLanguage      string
-	ConfirmAddress       string
+	ConfirmEmailAddress  string
 	ResetPasswordAddress string
+}
+
+//GetDefaultLocales loads default templates and strings for german and english
+func GetDefaultLocales() []*Translation {
+
+	return []*Translation{
+		&Translation{
+			LanguageCode: "en",
+
+			ActivationSender:   inlineTemplate("activation@{{ .CompanyWebsite }}.com"),
+			ActiviationSubject: inlineTemplate("Welcome at {{ .CompanyName }}! Verify your email address"),
+			ActivationTitle:    inlineTemplate("Welcome {{ .Username }},"),
+			ActivationContent:  loadTemplate("templates/confirm-en.html", "templates/confirm.html"),
+		},
+		&Translation{
+			LanguageCode: "de",
+
+			ActivationSender:   inlineTemplate("aktivierung@{{ .CompanyWebsite }}"),
+			ActiviationSubject: inlineTemplate("Willkommen bei {{ .CompanyName }}! Aktivieren Sie jetzt Ihren Account"),
+			ActivationTitle:    inlineTemplate("Willkommen {{ .Username }},"),
+			ActivationContent:  loadTemplate("templates/confirm.html", "templates/confirm-de.html"),
+		},
+	}
+
 }
 
 //GetTranslation returns a *Translation according to the language code passed. Returns the default translation if its unknown
@@ -71,22 +95,6 @@ func (adapter *DefaultTranslations) getString(template *template.Template, user 
 	return buf.String()
 }
 
-//GetRegistrationEmail returns an email struct for a new user
-func (adapter *DefaultTranslations) GetRegistrationEmail(lang string, user *User, verificationToken string) (*Email, error) {
-
-	trans := adapter.GetTranslation(lang)
-
-	return &Email{
-		Subject: adapter.getString(trans.ActiviationSubject, user, nil),
-		From:    adapter.getString(trans.ActivationSender, user, nil),
-		To:      user.Email,
-		Content: adapter.getString(trans.ActivationContent, user, &TranslationParameters{
-			"ConfirmAddress": adapter.ConfirmAddress + "?id=" + user.ID + "&token=" + verificationToken,
-		}),
-	}, nil
-
-}
-
 //Translation is used to translate the default emails and messages
 type Translation struct {
 	LanguageCode string
@@ -96,9 +104,9 @@ type Translation struct {
 	ActivationTitle    *template.Template
 	ActivationSender   *template.Template
 
-	ForgotPasswordSubject string
-	ForgotPasswordContent string
-	ForgotPasswordSender  string
+	ForgotPasswordSubject *template.Template
+	ForgotPasswordContent *template.Template
+	ForgotPasswordSender  *template.Template
 
 	PasswordResetSubject string
 	PasswordResetContent string
@@ -135,26 +143,34 @@ func inlineTemplate(templ string) *template.Template {
 
 }
 
-//GetDefaultLocales loads default templates and strings for german and english
-func GetDefaultLocales() []*Translation {
+//GetRegistrationEmail returns an email struct for a new user
+func (adapter *DefaultTranslations) GetRegistrationEmail(lang string, user *User, verificationToken string) (*Email, error) {
 
-	return []*Translation{
-		&Translation{
-			LanguageCode: "en",
+	trans := adapter.GetTranslation(lang)
 
-			ActivationSender:   inlineTemplate("activation@{{ .CompanyWebsite }}.com"),
-			ActiviationSubject: inlineTemplate("Welcome at {{ .CompanyName }}! Activate your account"),
-			ActivationTitle:    inlineTemplate("Welcome {{ .Username }},"),
-			ActivationContent:  loadTemplate("templates/confirm-en.html", "templates/confirm.html"),
-		},
-		&Translation{
-			LanguageCode: "de",
+	return &Email{
+		Subject: adapter.getString(trans.ActiviationSubject, user, nil),
+		From:    adapter.getString(trans.ActivationSender, user, nil),
+		To:      user.Email,
+		Content: adapter.getString(trans.ActivationContent, user, &TranslationParameters{
+			"ConfirmAddress": adapter.ConfirmEmailAddress + "?id=" + user.ID + "&token=" + verificationToken,
+		}),
+	}, nil
 
-			ActivationSender:   inlineTemplate("aktivierung@{{ .CompanyWebsite }}"),
-			ActiviationSubject: inlineTemplate("Willkommen bei {{ .CompanyName }}! Aktivieren Sie jetzt Ihren Account"),
-			ActivationTitle:    inlineTemplate("Willkommen {{ .Username }},"),
-			ActivationContent:  loadTemplate("templates/confirm.html", "templates/confirm-de.html"),
-		},
-	}
+}
+
+//GetForgotPasswordEmail sends an email to the user with a link to reset their password
+func (adapter *DefaultTranslations) GetForgotPasswordEmail(lang string, user *User, passwordToken string) (*Email, error) {
+
+	trans := adapter.GetTranslation(lang)
+
+	return &Email{
+		Subject: adapter.getString(trans.ForgotPasswordSubject, user, nil),
+		From:    adapter.getString(trans.ActivationSender, user, nil),
+		To:      user.Email,
+		Content: adapter.getString(trans.ActivationContent, user, &TranslationParameters{
+			"ResetAddress": adapter.ResetPasswordAddress + "?id=" + user.ID + "&token=" + passwordToken,
+		}),
+	}, nil
 
 }
