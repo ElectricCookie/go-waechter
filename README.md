@@ -1,4 +1,9 @@
-<p align="center"><img src="http://imgur.com/WWeVTGh.png" height="30"/></p>
+<p align="center">
+    <img alt="Waechter - Logo" src="http://imgur.com/WWeVTGh.png" height="30"/>
+    <br/>
+    <br/>
+    <a href="https://goreportcard.com/report/github.com/ElectricCookie/go-waechter"><img alt="Go Report Card" src="https://goreportcard.com/badge/github.com/ElectricCookie/go-waechter" /></a>
+</p>
 
 
 ---
