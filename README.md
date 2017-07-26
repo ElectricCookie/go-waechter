@@ -5,15 +5,17 @@
     <a href="https://goreportcard.com/report/github.com/ElectricCookie/go-waechter"><img alt="Go Report Card" src="https://goreportcard.com/badge/github.com/ElectricCookie/go-waechter" /></a>
 </p>
 
-
 ---
 
-Go Wächter [german = guard] is a library to implement JWT auth in go apps. It is supposed to bootstrap a web application bringing all necessary features.
+Go Wächter [German = guard] is a library to implement JWT auth in go apps. It is supposed to bootstrap a web application bringing all necessary features.
 
 ---
 
 ## Current status
 **Currently working on the basic functionality. This package is not ready for consumption yet.**
+
+## Dependencies and Adapters
+Wächter does not rely on external services, but it comes with adapters for SMTP and MongoDB. You can also implement your own connections by following the interfaces defined in **db-adapter.go** and **email-adapter.go**
 
 ## Features
 
@@ -21,7 +23,8 @@ Go Wächter [german = guard] is a library to implement JWT auth in go apps. It i
 - [ ] Brute-Force Protection
 - [ ] Invite System 
 - [ ] Notification Settings
-- [ ] Planned: OAuth, Check IP location
+- [ ] OAuth
+- [ ] IP Location check
 - [x] Auth using JWT, Access/Refresh Token architecture
 - [x] Registration
 - [x] Password Recovery
@@ -29,7 +32,6 @@ Go Wächter [german = guard] is a library to implement JWT auth in go apps. It i
 - [x] Adapter based allows to add custom email and database connections 
 - [x] Fully internationalized. Allows to translate all messages and emails
 - [x] Comes with beautiful email templates, but you can add your own
-- [x] Default adapters included for mongoDB (using mgo) and SMTP
 - [x] Configurable access token generation builds the foundation for complex auth needs.
 
 
@@ -39,6 +41,10 @@ Go Wächter [german = guard] is a library to implement JWT auth in go apps. It i
 Wäechter uses scrypt to hash passwords using an application secret and a salt unique to every user. It also hashes email activation tokens.
 
 ## Getting started
+
+```bash
+    go get github.com/ElectricCookie/go-waechter
+```
 
 ```golang
     import(

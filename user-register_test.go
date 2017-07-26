@@ -12,9 +12,9 @@ var _ = Describe("User:Register", func() {
 
 	BeforeEach(func() {
 
-		dbAdapter := waechter.NewMongoAdapter("localhost:27017", "waechter-test")
+		dbAdapter := &waechter.MemoryAdapter{}
 
-		dbAdapter.Db.DropDatabase()
+		dbAdapter.Reset()
 
 		emailAdapter := NewTestEmailAdapter()
 

@@ -14,9 +14,9 @@ var _ = Describe("User:ForgotPassword", func() {
 
 	BeforeEach(func() {
 
-		dbAdapter := waechter.NewMongoAdapter("localhost:27017", "waechter-test")
+		dbAdapter := &waechter.MemoryAdapter{}
 
-		dbAdapter.Db.DropDatabase()
+		dbAdapter.Reset()
 
 		emailAdapter := NewTestEmailAdapter()
 
@@ -75,13 +75,15 @@ var _ = Describe("User:ForgotPassword", func() {
 
 			userA, _ := w.DbAdapter.GetUserByUsername("ElectricCookie")
 
+			token := userA.ForgotPasswordToken
+
 			Expect(user.ForgotPasswordToken).NotTo(Equal("deactivated"))
 
 			w.ForgotPassword("somebody@something.com")
 
 			userB, _ := w.DbAdapter.GetUserByUsername("ElectricCookie")
 
-			Expect(userA.ForgotPasswordToken).ToNot(Equal(userB.ForgotPasswordToken))
+			Expect(token).ToNot(Equal(userB.ForgotPasswordToken))
 
 		})
 
