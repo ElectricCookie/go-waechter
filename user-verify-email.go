@@ -27,8 +27,8 @@ func (w *Waechter) VerifyEmailAddress(userID string, token string) *AuthError {
 
 	} else {
 		return &AuthError{
-			ErrorCode:   "invalidToken",
-			Description: "The activation token is not valid!",
+			ErrorCode:   "invalidVerificationToken",
+			Description: "The verification token is not valid!",
 			IsInternal:  false,
 		}
 	}

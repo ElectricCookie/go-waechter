@@ -19,7 +19,7 @@ func (waechter *Waechter) GenerateRefreshToken(userID string, expires int64) (*s
 
 	if err != nil {
 		return nil, &AuthError{
-			ErrorCode:   "userNotFound",
+			ErrorCode:   "unknownUser",
 			Description: "Could not find a user with the given id",
 			IsInternal:  true,
 		}

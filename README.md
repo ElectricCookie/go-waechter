@@ -43,6 +43,8 @@ Wächter does not rely on external services, but it comes with adapters for SMTP
 
 Wäechter uses scrypt to hash passwords using an application secret and a salt unique to every user. It also hashes email activation tokens.
 
+The refresh tokens are saved as JWT to httpOnly cookies (if you're using the gin adapter). This is recommended to prevent XSS!
+
 ## Getting started
 
 ```bash
