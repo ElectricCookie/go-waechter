@@ -44,7 +44,8 @@ func randomError(err error) *AuthError {
 	}
 }
 
-func invalidParameters(err error) *AuthError {
+//InvalidParameters is thrown if the parameters passed to a request are invalid
+func InvalidParameters(err error) *AuthError {
 	return &AuthError{
 		ErrorCode:   "invalidParameters",
 		Description: "The parameters passed were not valid",

@@ -2,6 +2,8 @@ package waechter_test
 
 import (
 	waechter "github.com/ElectricCookie/go-waechter"
+	"github.com/ElectricCookie/go-waechter/localeDefault"
+	"github.com/ElectricCookie/go-waechter/testEmail"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -18,16 +20,14 @@ var _ = Describe("User:ResetPassword", func() {
 
 		dbAdapter.Reset()
 
-		emailAdapter := NewTestEmailAdapter()
+		emailAdapter := testEmail.NewAdapter()
 
-		translations := &waechter.DefaultTranslations{
-			CompanyName:        "test-company",
-			CompanyWebsite:     "test-website.com",
-			LogoURL:            "https://codyhouse.co/demo/advanced-search-form/img/cd-logo.svg", //Shoutout to codyhouse.co for this awesome placeholder
-			DefaultLanguage:    "en",
-			Locales:            waechter.GetDefaultLocales(),
-			VerifyEmailAddress: "test-website.com/confirm/",
-		}
+		translations := localeDefault.NewDefaultTranslations()
+
+		translations.CompanyName = "test-company"
+		translations.CompanyWebsite = "test-website.com"
+		translations.LogoURL = "https://codyhouse.co/demo/advanced-search-form/img/cd-logo.svg" //Shoutout to codyhouse.co for this awesome placeholder
+		translations.VerifyEmailAddress = "test-website.com/confirm/"
 
 		w = waechter.New("somesecret", "go-waechter", dbAdapter, emailAdapter, translations)
 

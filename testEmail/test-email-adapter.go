@@ -1,30 +1,30 @@
-package waechter_test
+package testEmail
 
 import (
+	"html/template"
 	"log"
 	"os"
-	"text/template"
 
 	waechter "github.com/ElectricCookie/go-waechter"
 )
 
-//TestEmailAdapter is used in tests. It writes emails to files instead of sending them.
-type TestEmailAdapter struct {
+//Adapter is used in tests. It writes emails to files instead of sending them.
+type Adapter struct {
 	template *template.Template
 }
 
-//NewTestEmailAdapter creates a new test-email adapter
-func NewTestEmailAdapter() *TestEmailAdapter {
+//NewAdapter creates a new test-email adapter
+func NewAdapter() *Adapter {
+	b, _ := Asset("testEmail/test-email-template.html")
+	t := template.Must(template.New("test-email-template").Parse(string(b)))
 
-	t := template.Must(template.ParseFiles("./templates/test-email-template.html"))
-
-	return &TestEmailAdapter{
+	return &Adapter{
 		template: t,
 	}
 }
 
 //SendEmail executes the test template and saves the test result
-func (adapter *TestEmailAdapter) SendEmail(email *waechter.Email) error {
+func (adapter *Adapter) SendEmail(email *waechter.Email) error {
 
 	os.MkdirAll("./test_results/emails", os.ModePerm)
 

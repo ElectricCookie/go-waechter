@@ -1,10 +1,14 @@
-package waechter_test
+package transportGin_test
 
 import (
 	"encoding/json"
 	"net/http"
+	"testing"
 
 	waechter "github.com/ElectricCookie/go-waechter"
+	"github.com/ElectricCookie/go-waechter/localeDefault"
+	"github.com/ElectricCookie/go-waechter/testEmail"
+	"github.com/ElectricCookie/go-waechter/transportGin"
 	"github.com/braintree/manners"
 	"github.com/franela/goreq"
 	"github.com/gin-gonic/gin"
@@ -30,7 +34,7 @@ func makeRequest(method string, endpoint string, parameters interface{}, result 
 	}
 
 	// Try to get the result
-	response := waechter.JSONResponse{}
+	response := transportGin.JSONResponse{}
 
 	res.Body.FromJsonTo(&response)
 
@@ -59,21 +63,19 @@ var _ = Describe("User:Register", func() {
 
 	dbAdapter.Reset()
 
-	emailAdapter := NewTestEmailAdapter()
+	emailAdapter := testEmail.NewAdapter()
 
-	translations := &waechter.DefaultTranslations{
-		CompanyName:        "test-company",
-		CompanyWebsite:     "test-website.com",
-		LogoURL:            "https://codyhouse.co/demo/advanced-search-form/img/cd-logo.svg", //Shoutout to codyhouse.co for this awesome placeholder
-		DefaultLanguage:    "en",
-		Locales:            waechter.GetDefaultLocales(),
-		VerifyEmailAddress: "test-website.com/confirm/",
-	}
+	translations := localeDefault.NewDefaultTranslations()
+
+	translations.CompanyName = "test-company"
+	translations.CompanyWebsite = "test-website.com"
+	translations.LogoURL = "https://codyhouse.co/demo/advanced-search-form/img/cd-logo.svg" //Shoutout to codyhouse.co for this awesome placeholder
+	translations.VerifyEmailAddress = "test-website.com/confirm/"
 
 	w := waechter.New("somesecret", "go-waechter", dbAdapter, emailAdapter, translations)
 
 	gin.DefaultWriter = GinkgoWriter
-	ginC := waechter.GinConnector{
+	ginC := transportGin.GinConnector{
 		Waechter:   w,
 		AuthPath:   "/auth",
 		Domain:     "",
@@ -223,3 +225,8 @@ var _ = Describe("User:Register", func() {
 	})
 
 })
+
+func TestGinTransporter(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "GoWaechter Suite")
+}

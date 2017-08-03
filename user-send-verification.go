@@ -6,7 +6,7 @@ import govalidator "gopkg.in/asaskevich/govalidator.v4"
 func (waechter *Waechter) SendVerificationEmail(emailAddress string) (*string, *AuthError) {
 
 	if !govalidator.IsEmail(emailAddress) {
-		return nil, invalidParameters(nil)
+		return nil, InvalidParameters(nil)
 	}
 
 	user, err := waechter.DbAdapter.GetUserByEmail(emailAddress)

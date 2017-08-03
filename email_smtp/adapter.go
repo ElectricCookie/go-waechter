@@ -1,6 +1,7 @@
-package waechter
+package emailSmtp
 
 import (
+	waechter "github.com/ElectricCookie/go-waechter"
 	gomail "gopkg.in/gomail.v2"
 )
 
@@ -23,7 +24,7 @@ type SMTPAdapter struct {
 }
 
 //SendEmail is used to implement other messages and notifications to a user.
-func (adapter *SMTPAdapter) SendEmail(email *Email) error {
+func (adapter *SMTPAdapter) SendEmail(email *waechter.Email) error {
 
 	message := gomail.NewMessage()
 	message.SetHeader("From", email.From)

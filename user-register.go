@@ -22,7 +22,7 @@ func (waechter *Waechter) Register(params RegisterParams) *AuthError {
 	valid, validationErrs := validator.ValidateStruct(params)
 
 	if !valid {
-		return invalidParameters(validationErrs)
+		return InvalidParameters(validationErrs)
 	}
 
 	_, err := waechter.getDBAdapter().GetUserByUsername(params.Username)

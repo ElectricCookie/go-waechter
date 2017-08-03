@@ -1,9 +1,10 @@
-package waechter
+package dbMongo
 
 import (
 	"log"
 	"strings"
 
+	"github.com/ElectricCookie/go-waechter"
 	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -30,7 +31,7 @@ func NewMongoAdapter(address string, db string) *MongoAdapter {
 }
 
 // GetUserByEmail get user by email
-func (adapter *MongoAdapter) GetUserByEmail(email string) (*User, error) {
+func (adapter *MongoAdapter) GetUserByEmail(email string) (*waechter.User, error) {
 
 	user := User{}
 
@@ -47,9 +48,9 @@ func (adapter *MongoAdapter) GetUserByEmail(email string) (*User, error) {
 }
 
 // GetUserByUsername get user by username
-func (adapter *MongoAdapter) GetUserByUsername(username string) (*User, error) {
+func (adapter *waechter.MongoAdapter) GetUserByUsername(username string) (*waechter.User, error) {
 
-	user := User{}
+	user := waechter.User{}
 
 	err := adapter.Db.C("users").Find(bson.M{
 		"username": username,
@@ -63,7 +64,7 @@ func (adapter *MongoAdapter) GetUserByUsername(username string) (*User, error) {
 }
 
 // GetUserByID get user by ID
-func (adapter *MongoAdapter) GetUserByID(id string) (*User, error) {
+func (adapter *waechter.MongoAdapter) GetUserByID(id string) (*waechter.User, error) {
 	user := User{}
 
 	err := adapter.Db.C("users").FindId(id).One(&user)
@@ -76,7 +77,7 @@ func (adapter *MongoAdapter) GetUserByID(id string) (*User, error) {
 }
 
 // GetUserByUsernameOrEmail get user by username or email
-func (adapter *MongoAdapter) GetUserByUsernameOrEmail(input string) (*User, error) {
+func (adapter *waechter.MongoAdapter) GetUserByUsernameOrEmail(input string) (*waechter.User, error) {
 	user := User{}
 
 	err := adapter.Db.C("users").Find(bson.M{"$or": []bson.M{bson.M{"username": input}, bson.M{"email": strings.ToLower(input)}}}).One(&user)
@@ -89,7 +90,7 @@ func (adapter *MongoAdapter) GetUserByUsernameOrEmail(input string) (*User, erro
 }
 
 // CreateUser insert new user in DB
-func (adapter *MongoAdapter) CreateUser(user *User) error {
+func (adapter *MongoAdapter) CreateUser(user *waechter.User) error {
 	return adapter.Db.C("users").Insert(user)
 }
 
@@ -107,7 +108,7 @@ func (adapter *MongoAdapter) VerifyEmail(userID string) error {
 }
 
 // InsertRefreshToken insert a token
-func (adapter *MongoAdapter) InsertRefreshToken(token *RefreshToken) error {
+func (adapter *MongoAdapter) InsertRefreshToken(token *waechter.RefreshToken) error {
 	return adapter.Db.C("refreshTokens").Insert(token)
 }
 
