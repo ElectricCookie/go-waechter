@@ -28,7 +28,7 @@ type JSONResponse struct {
 func (connector *GinConnector) bindParamters(c *gin.Context, parameters interface{}) bool {
 	err := c.BindJSON(parameters)
 	if err != nil {
-		connector.respondHTTPDefault(nil, waechter.InvalidParameters(err), c)
+		connector.respondHTTPDefault(nil, waechter.InvalidParametersError(err), c)
 		return false
 	}
 	return true
@@ -69,13 +69,13 @@ func (connector *GinConnector) respondHTTPDefault(data interface{}, err *waechte
 func (connector *GinConnector) Login(context *gin.Context) {
 	// Retrieve data
 
-	parameters := waechter.LoginEmailOrUsernameData{}
+	parameters := waechter.UserLoginEmailOrUsernameData{}
 
 	if !connector.bindParamters(context, &parameters) {
 		return // Error occurred
 	}
 	// Use waechter to log in
-	refreshToken, err := connector.Waechter.LoginWithUsernameOrEmail(parameters)
+	refreshToken, err := connector.Waechter.UserLoginWithUsernameOrEmail(parameters)
 
 	if err == nil {
 		context.SetCookie("Waechter-RefreshToken", *refreshToken, 2629743, connector.AuthPath, connector.Domain, connector.ForceHTTPS, true)
@@ -89,13 +89,13 @@ func (connector *GinConnector) Login(context *gin.Context) {
 func (connector *GinConnector) Register(context *gin.Context) {
 	// Retrieve data
 
-	params := waechter.RegisterParams{}
+	params := waechter.UserRegisterParams{}
 
 	if !connector.bindParamters(context, &params) {
 		return // Error occurred
 	}
 
-	err := connector.Waechter.Register(params)
+	err := connector.Waechter.UserRegister(params)
 
 	if err != nil {
 		connector.respondHTTPDefault(nil, err, context)
@@ -117,13 +117,13 @@ func (connector *GinConnector) Register(context *gin.Context) {
 //VerifyEmail of a new account
 func (connector *GinConnector) VerifyEmail(context *gin.Context) {
 
-	parameters := waechter.VerifyEmailParameters{}
+	parameters := waechter.UserVerifyEmailParameters{}
 
 	if !connector.bindParamters(context, &parameters) {
 		return //Error occurred
 	}
 
-	err := connector.Waechter.VerifyEmailAddress(parameters)
+	err := connector.Waechter.UserVerifyEmailAddress(parameters)
 
 	connector.respondHTTPDefault(true, err, context)
 

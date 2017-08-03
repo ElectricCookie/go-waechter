@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	waechter "github.com/ElectricCookie/go-waechter"
+	"github.com/ElectricCookie/go-waechter/dbMemory"
 	"github.com/ElectricCookie/go-waechter/localeDefault"
 	"github.com/ElectricCookie/go-waechter/testEmail"
 	"github.com/ElectricCookie/go-waechter/transportGin"
@@ -56,7 +57,7 @@ func makeRequest(method string, endpoint string, parameters interface{}, result 
 
 var _ = Describe("User:Register", func() {
 
-	dbAdapter := &waechter.MemoryAdapter{}
+	dbAdapter := &dbMemory.MemoryAdapter{}
 
 	var verificationToken string
 	var resetToken string
@@ -70,7 +71,7 @@ var _ = Describe("User:Register", func() {
 	translations.CompanyName = "test-company"
 	translations.CompanyWebsite = "test-website.com"
 	translations.LogoURL = "https://codyhouse.co/demo/advanced-search-form/img/cd-logo.svg" //Shoutout to codyhouse.co for this awesome placeholder
-	translations.VerifyEmailAddress = "test-website.com/confirm/"
+	translations.UserVerifyEmailAddress = "test-website.com/confirm/"
 
 	w := waechter.New("somesecret", "go-waechter", dbAdapter, emailAdapter, translations)
 
@@ -98,7 +99,7 @@ var _ = Describe("User:Register", func() {
 			res := struct {
 				Token string `json:"token"`
 			}{}
-			authErr := makeRequest("POST", "/auth/register", waechter.RegisterParams{
+			authErr := makeRequest("POST", "/auth/register", waechter.UserRegisterParams{
 				Username:  "ElectricCookie",
 				Password:  "Password123",
 				Email:     "test-email@foo.com",
@@ -122,7 +123,7 @@ var _ = Describe("User:Register", func() {
 
 		It("should verify the email of a user", func() {
 			user, _ := dbAdapter.GetUserByUsername("ElectricCookie")
-			authErr := makeRequest("POST", "/auth/verifyEmail", waechter.VerifyEmailParameters{
+			authErr := makeRequest("POST", "/auth/verifyEmail", waechter.UserVerifyEmailParameters{
 				Token:  verificationToken,
 				UserID: user.ID,
 			}, nil, nil)
@@ -138,9 +139,22 @@ var _ = Describe("User:Register", func() {
 	})
 
 	Describe("Login", func() {
+
+		Describe("UserLoginUsername", func() {
+
+		})
+
+		Describe("UserLoginEmail", func() {
+
+		})
+
+		Describe("UserLoginUsernameOrEmail", func() {
+
+		})
+
 		It("should login somebody with the correct credentials in", func() {
 
-			authErr := makeRequest("POST", "/auth/login", waechter.LoginEmailOrUsernameData{
+			authErr := makeRequest("POST", "/auth/login", waechter.UserLoginEmailOrUsernameData{
 				UsernameOrEmail: "ElectricCookie",
 				Password:        "Password123",
 				RememberMe:      false,
@@ -152,7 +166,7 @@ var _ = Describe("User:Register", func() {
 
 		It("should fail to log in somebody with the wrong credentials", func() {
 
-			authErr := makeRequest("POST", "/auth/login", waechter.LoginEmailOrUsernameData{
+			authErr := makeRequest("POST", "/auth/login", waechter.UserLoginEmailOrUsernameData{
 				UsernameOrEmail: "ElectricCookie",
 				Password:        "Password1234",
 				RememberMe:      false,
@@ -160,7 +174,7 @@ var _ = Describe("User:Register", func() {
 
 			Expect(authErr).ToNot(BeNil())
 
-			authErr = makeRequest("POST", "/auth/login", waechter.LoginEmailOrUsernameData{
+			authErr = makeRequest("POST", "/auth/login", waechter.UserLoginEmailOrUsernameData{
 				UsernameOrEmail: "ElectricCookiee",
 				Password:        "Password123",
 				RememberMe:      false,
@@ -206,7 +220,7 @@ var _ = Describe("User:Register", func() {
 
 			Expect(authErr).To(BeNil())
 
-			authErr = makeRequest("POST", "/auth/login", waechter.LoginEmailOrUsernameData{
+			authErr = makeRequest("POST", "/auth/login", waechter.UserLoginEmailOrUsernameData{
 				UsernameOrEmail: "ElectricCookie",
 				Password:        "newPassword123",
 				RememberMe:      false,
