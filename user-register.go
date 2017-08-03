@@ -50,7 +50,7 @@ func (waechter *Waechter) Register(params RegisterParams) *AuthError {
 
 	salt := generateRandomString(32)
 
-	// Generate activation/verfication token
+	// Generate activation/verification token
 
 	passwordHash := hash(params.Password, salt)
 
