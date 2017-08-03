@@ -19,12 +19,12 @@ var _ = Describe("User:Register", func() {
 		emailAdapter := NewTestEmailAdapter()
 
 		translations := &waechter.DefaultTranslations{
-			CompanyName:         "test-company",
-			CompanyWebsite:      "test-website.com",
-			LogoURL:             "https://codyhouse.co/demo/advanced-search-form/img/cd-logo.svg", //Shoutout to codyhouse.co for this awesome placeholder
-			DefaultLanguage:     "en",
-			Locales:             waechter.GetDefaultLocales(),
-			ConfirmEmailAddress: "test-website.com/confirm/",
+			CompanyName:        "test-company",
+			CompanyWebsite:     "test-website.com",
+			LogoURL:            "https://codyhouse.co/demo/advanced-search-form/img/cd-logo.svg", //Shoutout to codyhouse.co for this awesome placeholder
+			DefaultLanguage:    "en",
+			Locales:            waechter.GetDefaultLocales(),
+			VerifyEmailAddress: "test-website.com/confirm/",
 		}
 
 		w = waechter.New("somesecret", "go-waechter", dbAdapter, emailAdapter, translations)

@@ -86,7 +86,7 @@ func (waechter *Waechter) CheckRefreshToken(jwtToken string) (*jwt.StandardClaim
 }
 
 // GenerateAccessToken issues a new access token based on a refresh token
-func (waechter *Waechter) GenerateAccessToken(refreshToken string) (*string, *AuthError) {
+func (waechter *Waechter) GenerateAccessToken(refreshToken string, isAllowed func(*jwt.StandardClaims) bool) (*string, *AuthError) {
 
 	claims, err := waechter.CheckRefreshToken(refreshToken)
 	if err != nil {

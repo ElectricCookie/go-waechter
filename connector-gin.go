@@ -1,44 +1,165 @@
 package waechter
 
-import "github.com/gin-gonic/gin"
+import (
+	"encoding/json"
+	"io"
+
+	"github.com/gin-gonic/gin"
+)
 
 //GinConnector is used to setup gin with go-waechter
 type GinConnector struct {
-	waechter   *Waechter
-	authPath   string
-	domain     string
-	forceHTTPS true
+	Waechter   *Waechter
+	Debug      bool
+	AuthPath   string
+	Domain     string
+	Writer     io.Writer
+	ForceHTTPS bool
 }
 
-func respondHTTPDefault(data interface{}, err *AuthError, context *gin.Context) {
+//JSONResponse describes the format in which data is returned from the connector
+type JSONResponse struct {
+	Status bool        `json:"status"`
+	Err    *AuthError  `json:"err"`
+	Data   interface{} `json:"data"`
+}
+
+func (connector *GinConnector) bindParamters(c *gin.Context, parameters interface{}) bool {
+	err := c.BindJSON(parameters)
 	if err != nil {
+		connector.respondHTTPDefault(nil, invalidParameters(err), c)
+		return false
+	}
+	return true
+}
+
+//DefaultRoutes mounts routes under the /auth/ path
+func (connector *GinConnector) DefaultRoutes(engine *gin.Engine) {
+
+	engine.POST("/auth/login", connector.Login)
+	engine.POST("/auth/register", connector.Register)
+	engine.POST("/auth/forgotPassword", connector.ForgotPassword)
+	engine.POST("/auth/resetPassword", connector.ResetPassword)
+	engine.POST("/auth/verifyEmail", connector.VerifyEmail)
+
+}
+
+func (connector *GinConnector) respondHTTPDefault(data interface{}, err *AuthError, context *gin.Context) {
+	if err != nil {
+		if connector.Debug {
+			s, _ := json.Marshal(err)
+			connector.Writer.Write(s)
+		}
+
 		// Make sure internal errors are not passed to the outer world
 		if err.IsInternal {
 			err.ErrorCode = "internalError"
 			err.Description = "Internal Error occured. "
 			err.Err = nil
 		}
-		context.JSON(500, err)
+
+		context.JSON(500, JSONResponse{Status: false, Err: err, Data: nil})
 	} else {
-		context.JSON(200, data)
+		context.JSON(200, JSONResponse{Status: true, Err: nil, Data: data})
 	}
 }
 
 //Login to an account
 func (connector *GinConnector) Login(context *gin.Context) {
 	// Retrieve data
-	usernameOrEmail := context.PostForm("usernameOrEmail")
-	password := context.PostForm("password")
-	// Use waechter to log in
-	refreshToken, err := connector.waechter.LoginWithUsernameOrEmail(LoginEmailOrUsernameData{
-		UsernameOrEmail: usernameOrEmail,
-		Password:        password,
-	})
 
-	if err != nil {
-		context.SetCookie("Waechter-RefreshToken", *refreshToken, 2629743, connector.authPath, connector.domain, connector.forceHTTPS, true)
+	parameters := LoginEmailOrUsernameData{}
+
+	if !connector.bindParamters(context, &parameters) {
+		return // Error occured
+	}
+	// Use waechter to log in
+	refreshToken, err := connector.Waechter.LoginWithUsernameOrEmail(parameters)
+
+	if err == nil {
+		context.SetCookie("Waechter-RefreshToken", *refreshToken, 2629743, connector.AuthPath, connector.Domain, connector.ForceHTTPS, true)
 	}
 
-	respondHTTPDefault(struct{ status bool }{true}, err, context)
+	connector.respondHTTPDefault(struct{ status bool }{true}, err, context)
+
+}
+
+// Register a new account
+func (connector *GinConnector) Register(context *gin.Context) {
+	// Retrieve data
+
+	params := RegisterParams{}
+
+	if !connector.bindParamters(context, &params) {
+		return // Error occured
+	}
+
+	err := connector.Waechter.Register(params)
+
+	if err != nil {
+		connector.respondHTTPDefault(nil, err, context)
+		return
+	}
+
+	token, err := connector.Waechter.SendVerificationEmail(params.Email)
+
+	if connector.Debug {
+		connector.respondHTTPDefault(struct {
+			Token string `json:"token"`
+		}{Token: *token}, err, context)
+	} else {
+		connector.respondHTTPDefault(struct{ status bool }{true}, err, context)
+	}
+
+}
+
+//VerifyEmail of a new account
+func (connector *GinConnector) VerifyEmail(context *gin.Context) {
+
+	parameters := VerifyEmailParameters{}
+
+	if !connector.bindParamters(context, &parameters) {
+		return //Error occurred
+	}
+
+	err := connector.Waechter.VerifyEmailAddress(parameters)
+
+	connector.respondHTTPDefault(true, err, context)
+
+}
+
+//ForgotPassword requests a reset password email
+func (connector *GinConnector) ForgotPassword(context *gin.Context) {
+
+	parameters := ForgotPasswordParams{}
+
+	if !connector.bindParamters(context, &parameters) {
+		return //Error occurred
+	}
+
+	token, err := connector.Waechter.ForgotPassword(parameters)
+
+	if connector.Debug {
+		connector.respondHTTPDefault(struct {
+			Token string `json:"token"`
+		}{Token: *token}, err, context)
+	} else {
+		connector.respondHTTPDefault(struct{ status bool }{true}, err, context)
+	}
+
+}
+
+//ResetPassword resets the password of a user
+func (connector *GinConnector) ResetPassword(context *gin.Context) {
+
+	parameters := ResetPasswordParams{}
+
+	if !connector.bindParamters(context, &parameters) {
+		return //Error occurred
+	}
+
+	err := connector.Waechter.ResetPassword(parameters)
+
+	connector.respondHTTPDefault(struct{ status bool }{true}, err, context)
 
 }

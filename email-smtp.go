@@ -22,8 +22,8 @@ type SMTPAdapter struct {
 	SMTPPassword string
 }
 
-//SendCustomEmail is used to implement other messages and notifications to a user.
-func (adapter *SMTPAdapter) SendCustomEmail(email *Email) error {
+//SendEmail is used to implement other messages and notifications to a user.
+func (adapter *SMTPAdapter) SendEmail(email *Email) error {
 
 	message := gomail.NewMessage()
 	message.SetHeader("From", email.From)

@@ -17,7 +17,7 @@ type DefaultTranslations struct {
 	LogoURL              string
 	Locales              []*Translation
 	DefaultLanguage      string
-	ConfirmEmailAddress  string
+	VerifyEmailAddress   string
 	ResetPasswordAddress string
 }
 
@@ -166,7 +166,7 @@ func (adapter *DefaultTranslations) GetRegistrationEmail(user *User, verificatio
 		From:    adapter.getString(trans.ActivationSender, user, nil),
 		To:      user.Email,
 		Content: adapter.getString(trans.ActivationContent, user, &TranslationParameters{
-			"ConfirmAddress": adapter.ConfirmEmailAddress + "?id=" + user.ID + "&token=" + verificationToken,
+			"ConfirmAddress": adapter.VerifyEmailAddress + "?id=" + user.ID + "&token=" + verificationToken,
 		}),
 	}, nil
 

@@ -21,12 +21,12 @@ var _ = Describe("User:ResetPassword", func() {
 		emailAdapter := NewTestEmailAdapter()
 
 		translations := &waechter.DefaultTranslations{
-			CompanyName:         "test-company",
-			CompanyWebsite:      "test-website.com",
-			LogoURL:             "https://codyhouse.co/demo/advanced-search-form/img/cd-logo.svg", //Shoutout to codyhouse.co for this awesome placeholder
-			DefaultLanguage:     "en",
-			Locales:             waechter.GetDefaultLocales(),
-			ConfirmEmailAddress: "test-website.com/confirm/",
+			CompanyName:        "test-company",
+			CompanyWebsite:     "test-website.com",
+			LogoURL:            "https://codyhouse.co/demo/advanced-search-form/img/cd-logo.svg", //Shoutout to codyhouse.co for this awesome placeholder
+			DefaultLanguage:    "en",
+			Locales:            waechter.GetDefaultLocales(),
+			VerifyEmailAddress: "test-website.com/confirm/",
 		}
 
 		w = waechter.New("somesecret", "go-waechter", dbAdapter, emailAdapter, translations)
@@ -44,19 +44,23 @@ var _ = Describe("User:ResetPassword", func() {
 
 		verfiy, _ := w.SendVerificationEmail(user.Email)
 
-		w.VerifyEmailAddress(user.ID, *verfiy)
+		w.VerifyEmailAddress(waechter.VerifyEmailParameters{UserID: user.ID, Token: *verfiy})
 
 	})
 
 	Context("Forgot password was called", func() {
 
 		BeforeEach(func() {
-			token, _ = w.ForgotPassword(user.Email)
+			token, _ = w.ForgotPassword(waechter.ForgotPasswordParams{Email: user.Email})
 		})
 
 		It("should reset the password if all paremeters are correct", func() {
 
-			err := w.ResetPassword(user.ID, *token, "newPassword")
+			err := w.ResetPassword(waechter.ResetPasswordParams{
+				UserID:      user.ID,
+				Token:       *token,
+				NewPassword: "newPassword",
+			})
 
 			Expect(err).To(BeNil())
 

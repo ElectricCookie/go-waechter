@@ -8,12 +8,12 @@ import (
 
 // RegisterParams are the parameters used to register a new user.
 type RegisterParams struct {
-	Username  string `valid:"required"`
-	Password  string `valid:"required"`
-	Email     string `valid:"required,email"`
-	FirstName string `valid:"required"`
-	LastName  string `valid:"required"`
-	Language  string `valid:"required"`
+	Username  string `valid:"required" json:"username" binding:"required"`
+	Password  string `valid:"required" json:"password" binding:"required"`
+	Email     string `valid:"required,email" json:"email" binding:"required"`
+	FirstName string `valid:"required" json:"firstName" binding:"required"`
+	LastName  string `valid:"required" json:"lastName" binding:"required"`
+	Language  string `valid:"required" json:"language" binding:"required"`
 }
 
 //Register a new user

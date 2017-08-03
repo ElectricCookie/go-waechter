@@ -1,13 +1,19 @@
 package waechter
 
+//VerifyEmailParameters describes the paramteres passed to VerifyEmailAddress
+type VerifyEmailParameters struct {
+	UserID string `json:"userId" binding:"required"`
+	Token  string `json:"token" binding:"required"`
+}
+
 //VerifyEmailAddress verifies the email address
-func (w *Waechter) VerifyEmailAddress(userID string, token string) *AuthError {
+func (w *Waechter) VerifyEmailAddress(parameters VerifyEmailParameters) *AuthError {
 
 	// Find user to retrieve token and salt
 	var user *User
 
 	var err error
-	if user, err = w.DbAdapter.GetUserByID(userID); err != nil || user == nil {
+	if user, err = w.DbAdapter.GetUserByID(parameters.UserID); err != nil || user == nil {
 		return userNotFoundError(err)
 	}
 
@@ -17,11 +23,11 @@ func (w *Waechter) VerifyEmailAddress(userID string, token string) *AuthError {
 
 	// Hash the token
 
-	tokenHash := hash(token, user.Salt)
+	tokenHash := hash(parameters.Token, user.Salt)
 
 	// Check if tokens match
 	if tokenHash == user.VerificationToken {
-		if writeErr := w.DbAdapter.VerifyEmail(userID); writeErr != nil {
+		if writeErr := w.DbAdapter.VerifyEmail(parameters.UserID); writeErr != nil {
 			return dbWriteErr(writeErr)
 		}
 

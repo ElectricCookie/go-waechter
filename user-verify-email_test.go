@@ -21,12 +21,12 @@ var _ = Describe("User:VerifyEmailAddress", func() {
 		emailAdapter := NewTestEmailAdapter()
 
 		translations := &waechter.DefaultTranslations{
-			CompanyName:         "test-company",
-			CompanyWebsite:      "test-website.com",
-			LogoURL:             "https://codyhouse.co/demo/advanced-search-form/img/cd-logo.svg", //Shoutout to codyhouse.co for this awesome placeholder
-			DefaultLanguage:     "en",
-			Locales:             waechter.GetDefaultLocales(),
-			ConfirmEmailAddress: "test-website.com/confirm/",
+			CompanyName:        "test-company",
+			CompanyWebsite:     "test-website.com",
+			LogoURL:            "https://codyhouse.co/demo/advanced-search-form/img/cd-logo.svg", //Shoutout to codyhouse.co for this awesome placeholder
+			DefaultLanguage:    "en",
+			Locales:            waechter.GetDefaultLocales(),
+			VerifyEmailAddress: "test-website.com/confirm/",
 		}
 
 		w = waechter.New("somesecret", "go-waechter", dbAdapter, emailAdapter, translations)
@@ -48,7 +48,10 @@ var _ = Describe("User:VerifyEmailAddress", func() {
 
 	It("should verify the email address if the token is correct", func() {
 
-		err := w.VerifyEmailAddress(user.ID, *token)
+		err := w.VerifyEmailAddress(waechter.VerifyEmailParameters{
+			UserID: user.ID,
+			Token:  *token,
+		})
 
 		Expect(err).To(BeNil())
 
@@ -59,10 +62,14 @@ var _ = Describe("User:VerifyEmailAddress", func() {
 	})
 
 	It("should not verify the email address if the token is incorrect", func() {
-		err := w.VerifyEmailAddress(user.ID, "Invalid token")
+
+		err := w.VerifyEmailAddress(waechter.VerifyEmailParameters{
+			UserID: user.ID,
+			Token:  "Invalid token",
+		})
 
 		Expect(err).ToNot(BeNil())
-		Expect(err.ErrorCode).To(Equal("invalidToken"))
+		Expect(err.ErrorCode).To(Equal("invalidVerificationToken"))
 
 		user, _ = w.DbAdapter.GetUserByUsername("ElectricCookie")
 

@@ -1,17 +1,24 @@
 package waechter
 
 import (
-	"gopkg.in/asaskevich/govalidator.v4"
+	validator "gopkg.in/asaskevich/govalidator.v4"
 )
 
-//ForgotPassword sends an email to recover the password
-func (w *Waechter) ForgotPassword(emailAddress string) (*string, *AuthError) {
+//ForgotPasswordParams describes parameters passed to ForgotPassword
+type ForgotPasswordParams struct {
+	Email string `json:"email" binding:"required" valid:"required,email"`
+}
 
-	if !govalidator.IsEmail(emailAddress) {
-		return nil, invalidParameters(nil)
+//ForgotPassword sends an email to recover the password
+func (w *Waechter) ForgotPassword(parameters ForgotPasswordParams) (*string, *AuthError) {
+
+	valid, validationErrs := validator.ValidateStruct(parameters)
+
+	if !valid {
+		return nil, invalidParameters(validationErrs)
 	}
 
-	user, err := w.DbAdapter.GetUserByEmail(emailAddress)
+	user, err := w.DbAdapter.GetUserByEmail(parameters.Email)
 
 	if err != nil {
 		return nil, userNotFoundError(err)

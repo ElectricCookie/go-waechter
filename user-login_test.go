@@ -21,12 +21,12 @@ var _ = Describe("User:VerifyEmailAddress", func() {
 		emailAdapter := NewTestEmailAdapter()
 
 		translations := &waechter.DefaultTranslations{
-			CompanyName:         "test-company",
-			CompanyWebsite:      "test-website.com",
-			LogoURL:             "https://codyhouse.co/demo/advanced-search-form/img/cd-logo.svg", //Shoutout to codyhouse.co for this awesome placeholder
-			DefaultLanguage:     "en",
-			Locales:             waechter.GetDefaultLocales(),
-			ConfirmEmailAddress: "test-website.com/confirm/",
+			CompanyName:        "test-company",
+			CompanyWebsite:     "test-website.com",
+			LogoURL:            "https://codyhouse.co/demo/advanced-search-form/img/cd-logo.svg", //Shoutout to codyhouse.co for this awesome placeholder
+			DefaultLanguage:    "en",
+			Locales:            waechter.GetDefaultLocales(),
+			VerifyEmailAddress: "test-website.com/confirm/",
 		}
 
 		w = waechter.New("somesecret", "go-waechter", dbAdapter, emailAdapter, translations)
@@ -48,7 +48,11 @@ var _ = Describe("User:VerifyEmailAddress", func() {
 	Context("email is verified", func() {
 
 		BeforeEach(func() {
-			w.VerifyEmailAddress(user.ID, *token)
+
+			w.VerifyEmailAddress(waechter.VerifyEmailParameters{
+				UserID: user.ID,
+				Token:  *token,
+			})
 		})
 
 		It("should return a new token if the login succeeds", func() {

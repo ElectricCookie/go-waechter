@@ -1,10 +1,17 @@
 package waechter
 
+//ResetPasswordParams describes the data passed to ResetPassword
+type ResetPasswordParams struct {
+	UserID      string `json:"userId" bind:"required"`
+	Token       string `json:"token" bind:"required"`
+	NewPassword string `json:"newPassword" bind:"required"`
+}
+
 //ResetPassword changes the password using  a reset token. It also sends an email to notify the user of the changes made to the account
-func (waechter *Waechter) ResetPassword(userID string, token string, newPassword string) *AuthError {
+func (waechter *Waechter) ResetPassword(params ResetPasswordParams) *AuthError {
 
 	// Get the user
-	user, userErr := waechter.getDBAdapter().GetUserByID(userID)
+	user, userErr := waechter.getDBAdapter().GetUserByID(params.UserID)
 
 	if userErr != nil || user == nil {
 		return userNotFoundError(userErr)
@@ -12,7 +19,7 @@ func (waechter *Waechter) ResetPassword(userID string, token string, newPassword
 
 	// Hash the token
 
-	tokenHash := hash(token, user.Salt)
+	tokenHash := hash(params.Token, user.Salt)
 
 	if user.ForgotPasswordToken != tokenHash || user.ForgotPasswordToken == "dectivated" {
 
@@ -26,7 +33,7 @@ func (waechter *Waechter) ResetPassword(userID string, token string, newPassword
 
 	// Set the new password
 
-	newPasswordHash := hash(newPassword, user.Salt)
+	newPasswordHash := hash(params.NewPassword, user.Salt)
 
 	if user.PasswordHash == newPasswordHash {
 		return &AuthError{

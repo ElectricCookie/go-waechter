@@ -8,7 +8,7 @@ import (
 type LoginEmailOrUsernameData struct {
 	UsernameOrEmail string `json:"id" binding:"required"`
 	Password        string `json:"password" binding:"required"`
-	RememberMe      bool   `json:"rememberMe" binding:"required"`
+	RememberMe      bool   `json:"rememberMe"`
 }
 
 // LoginWithUsernameOrEmail logs a user in using email or username and password. Returns a new refresh token. Possible AuthErrors: unknownUser, cryptError, wrongPassword
