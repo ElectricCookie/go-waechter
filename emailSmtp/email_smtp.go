@@ -5,8 +5,8 @@ import (
 	gomail "gopkg.in/gomail.v2"
 )
 
-//NewSMTPAdapter creates a new SMTP adapter
-func NewSMTPAdapter(url string, port int, user string, password string) *SMTPAdapter {
+//New creates a new SMTP adapter
+func New(url string, port int, user string, password string) *SMTPAdapter {
 	return &SMTPAdapter{
 		SMTPURL:      url,
 		SMTPPort:     port,

@@ -2,13 +2,14 @@ package waechter_test
 
 import (
 	waechter "github.com/ElectricCookie/go-waechter"
+	"github.com/ElectricCookie/go-waechter/dbMemory"
 	"github.com/ElectricCookie/go-waechter/localeDefault"
 	"github.com/ElectricCookie/go-waechter/testEmail"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("User:ResetPassword", func() {
+var _ = Describe("User:UserVerifyEmailAddress", func() {
 
 	var w *waechter.Waechter
 	var token *string
@@ -16,7 +17,7 @@ var _ = Describe("User:ResetPassword", func() {
 
 	BeforeEach(func() {
 
-		dbAdapter := &waechter.MemoryAdapter{}
+		dbAdapter := &dbMemory.MemoryAdapter{}
 
 		dbAdapter.Reset()
 
@@ -27,11 +28,11 @@ var _ = Describe("User:ResetPassword", func() {
 		translations.CompanyName = "test-company"
 		translations.CompanyWebsite = "test-website.com"
 		translations.LogoURL = "https://codyhouse.co/demo/advanced-search-form/img/cd-logo.svg" //Shoutout to codyhouse.co for this awesome placeholder
-		translations.VerifyEmailAddress = "test-website.com/confirm/"
+		translations.UserVerifyEmailAddress = "test-website.com/confirm/"
 
 		w = waechter.New("somesecret", "go-waechter", dbAdapter, emailAdapter, translations)
 
-		w.Register(waechter.RegisterParams{
+		w.UserRegister(waechter.UserRegisterParams{
 			Username:  "ElectricCookie",
 			Email:     "somebody@something.com",
 			Password:  "test123",
@@ -42,40 +43,38 @@ var _ = Describe("User:ResetPassword", func() {
 
 		user, _ = w.DbAdapter.GetUserByUsername("ElectricCookie")
 
-		verfiy, _ := w.SendVerificationEmail(user.Email)
-
-		w.VerifyEmailAddress(waechter.VerifyEmailParameters{UserID: user.ID, Token: *verfiy})
+		token, _ = w.SendVerificationEmail(user.Email)
 
 	})
 
-	Context("Forgot password was called", func() {
+	It("should verify the email address if the token is correct", func() {
 
-		BeforeEach(func() {
-			token, _ = w.ForgotPassword(waechter.ForgotPasswordParams{Email: user.Email})
+		err := w.UserVerifyEmailAddress(waechter.UserVerifyEmailParameters{
+			UserID: user.ID,
+			Token:  *token,
 		})
 
-		It("should reset the password if all paremeters are correct", func() {
+		Expect(err).To(BeNil())
 
-			err := w.ResetPassword(waechter.ResetPasswordParams{
-				UserID:      user.ID,
-				Token:       *token,
-				NewPassword: "newPassword",
-			})
+		user, _ = w.DbAdapter.GetUserByUsername("ElectricCookie")
 
-			Expect(err).To(BeNil())
+		Expect(user.EmailVerfied).To(BeTrue())
 
-			// Do a login
+	})
 
-			_, errLogin := w.LoginWithUsernameOrEmail(waechter.LoginEmailOrUsernameData{
-				UsernameOrEmail: user.Username,
-				Password:        "newPassword",
-				RememberMe:      false,
-			})
+	It("should not verify the email address if the token is incorrect", func() {
 
-			Expect(errLogin).To(BeNil())
-
+		err := w.UserVerifyEmailAddress(waechter.UserVerifyEmailParameters{
+			UserID: user.ID,
+			Token:  "Invalid token",
 		})
 
+		Expect(err).ToNot(BeNil())
+		Expect(err.ErrorCode).To(Equal("invalidVerificationToken"))
+
+		user, _ = w.DbAdapter.GetUserByUsername("ElectricCookie")
+
+		Expect(user.EmailVerfied).ToNot(BeTrue())
 	})
 
 })

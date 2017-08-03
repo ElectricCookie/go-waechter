@@ -2,6 +2,7 @@ package waechter_test
 
 import (
 	waechter "github.com/ElectricCookie/go-waechter"
+	"github.com/ElectricCookie/go-waechter/dbMemory"
 	"github.com/ElectricCookie/go-waechter/localeDefault"
 	"github.com/ElectricCookie/go-waechter/testEmail"
 	. "github.com/onsi/ginkgo"
@@ -16,7 +17,7 @@ var _ = Describe("User:ForgotPassword", func() {
 
 	BeforeEach(func() {
 
-		dbAdapter := &waechter.MemoryAdapter{}
+		dbAdapter := &dbMemory.MemoryAdapter{}
 
 		dbAdapter.Reset()
 
@@ -27,11 +28,11 @@ var _ = Describe("User:ForgotPassword", func() {
 		translations.CompanyName = "test-company"
 		translations.CompanyWebsite = "test-website.com"
 		translations.LogoURL = "https://codyhouse.co/demo/advanced-search-form/img/cd-logo.svg" //Shoutout to codyhouse.co for this awesome placeholder
-		translations.VerifyEmailAddress = "test-website.com/confirm/"
+		translations.UserVerifyEmailAddress = "test-website.com/confirm/"
 
 		w = waechter.New("somesecret", "go-waechter", dbAdapter, emailAdapter, translations)
 
-		w.Register(waechter.RegisterParams{
+		w.UserRegister(waechter.UserRegisterParams{
 			Username:  "ElectricCookie",
 			Email:     "somebody@something.com",
 			Password:  "test123",
@@ -49,7 +50,7 @@ var _ = Describe("User:ForgotPassword", func() {
 	Context("Email was verified", func() {
 
 		BeforeEach(func() {
-			w.VerifyEmailAddress(waechter.VerifyEmailParameters{
+			w.UserVerifyEmailAddress(waechter.UserVerifyEmailParameters{
 				UserID: user.ID,
 				Token:  *token,
 			})

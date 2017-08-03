@@ -2,13 +2,14 @@ package waechter_test
 
 import (
 	waechter "github.com/ElectricCookie/go-waechter"
+	"github.com/ElectricCookie/go-waechter/dbMemory"
 	"github.com/ElectricCookie/go-waechter/localeDefault"
 	"github.com/ElectricCookie/go-waechter/testEmail"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("User:VerifyEmailAddress", func() {
+var _ = Describe("User:UserVerifyEmailAddress", func() {
 
 	var w *waechter.Waechter
 	var token *string
@@ -16,7 +17,7 @@ var _ = Describe("User:VerifyEmailAddress", func() {
 
 	BeforeEach(func() {
 
-		dbAdapter := &waechter.MemoryAdapter{}
+		dbAdapter := &dbMemory.MemoryAdapter{}
 
 		dbAdapter.Reset()
 
@@ -27,11 +28,11 @@ var _ = Describe("User:VerifyEmailAddress", func() {
 		translations.CompanyName = "test-company"
 		translations.CompanyWebsite = "test-website.com"
 		translations.LogoURL = "https://codyhouse.co/demo/advanced-search-form/img/cd-logo.svg" //Shoutout to codyhouse.co for this awesome placeholder
-		translations.VerifyEmailAddress = "test-website.com/confirm/"
+		translations.UserVerifyEmailAddress = "test-website.com/confirm/"
 
 		w = waechter.New("somesecret", "go-waechter", dbAdapter, emailAdapter, translations)
 
-		w.Register(waechter.RegisterParams{
+		w.UserRegister(waechter.UserRegisterParams{
 			Username:  "ElectricCookie",
 			Email:     "somebody@something.com",
 			Password:  "test123",
@@ -49,7 +50,7 @@ var _ = Describe("User:VerifyEmailAddress", func() {
 
 		BeforeEach(func() {
 
-			w.VerifyEmailAddress(waechter.VerifyEmailParameters{
+			w.UserVerifyEmailAddress(waechter.UserVerifyEmailParameters{
 				UserID: user.ID,
 				Token:  *token,
 			})
@@ -57,7 +58,7 @@ var _ = Describe("User:VerifyEmailAddress", func() {
 
 		It("should return a new token if the login succeeds", func() {
 
-			refreshToken, err := w.LoginWithUsernameOrEmail(waechter.LoginEmailOrUsernameData{
+			refreshToken, err := w.UserLoginWithUsernameOrEmail(waechter.UserLoginEmailOrUsernameData{
 				UsernameOrEmail: "ElectricCookie",
 				Password:        "test123",
 				RememberMe:      false,
@@ -74,7 +75,7 @@ var _ = Describe("User:VerifyEmailAddress", func() {
 		})
 
 		It("should fail if the password is wrong", func() {
-			_, err := w.LoginWithUsernameOrEmail(waechter.LoginEmailOrUsernameData{
+			_, err := w.UserLoginWithUsernameOrEmail(waechter.UserLoginEmailOrUsernameData{
 				UsernameOrEmail: "ElectricCookie",
 				Password:        "test1234",
 				RememberMe:      false,
@@ -86,14 +87,14 @@ var _ = Describe("User:VerifyEmailAddress", func() {
 		})
 
 		It("should fail if the username is not found", func() {
-			_, err := w.LoginWithUsernameOrEmail(waechter.LoginEmailOrUsernameData{
+			_, err := w.UserLoginWithUsernameOrEmail(waechter.UserLoginEmailOrUsernameData{
 				UsernameOrEmail: "ElectricCookiee",
 				Password:        "test123",
 				RememberMe:      true,
 			})
 
 			Expect(err).ToNot(BeNil())
-			Expect(err.ErrorCode).To(Equal("unknownUser"))
+			Expect(err.ErrorCode).To(Equal("userNotFound"))
 
 		})
 
@@ -101,7 +102,7 @@ var _ = Describe("User:VerifyEmailAddress", func() {
 
 	It("should fail if the email address is not verified", func() {
 
-		_, err := w.LoginWithUsernameOrEmail(waechter.LoginEmailOrUsernameData{
+		_, err := w.UserLoginWithUsernameOrEmail(waechter.UserLoginEmailOrUsernameData{
 			UsernameOrEmail: "ElectricCookie",
 			Password:        "test123",
 			RememberMe:      false,

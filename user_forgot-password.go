@@ -15,7 +15,7 @@ func (w *Waechter) ForgotPassword(parameters ForgotPasswordParams) (*string, *Au
 	valid, validationErrs := validator.ValidateStruct(parameters)
 
 	if !valid {
-		return nil, InvalidParameters(validationErrs)
+		return nil, InvalidParametersError(validationErrs)
 	}
 
 	user, err := w.DbAdapter.GetUserByEmail(parameters.Email)
@@ -53,7 +53,7 @@ func (w *Waechter) ForgotPassword(parameters ForgotPasswordParams) (*string, *Au
 	err = w.DbAdapter.SetForgotPasswordToken(user.ID, hash)
 
 	if err != nil {
-		return nil, dbWriteErr(err)
+		return nil, dbWriteError(err)
 	}
 
 	return &token, nil

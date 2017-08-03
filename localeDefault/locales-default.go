@@ -35,7 +35,7 @@ type DefaultTranslations struct {
 	LogoURL              string
 	Locales              map[string]Translation
 	DefaultLanguage      string
-	VerifyEmailAddress   string
+	UserVerifyEmailAddress   string
 	ResetPasswordAddress string
 }
 
@@ -110,7 +110,7 @@ func (def *DefaultTranslations) GetRegistrationEmail(user *waechter.User, verifi
 		From:    def.getString(trans["activation.sender"], user, nil),
 		To:      user.Email,
 		Content: def.getString(trans["activation.content"], user, &TranslationParameters{
-			"ConfirmAddress": def.VerifyEmailAddress + "?id=" + user.ID + "&token=" + verificationToken,
+			"ConfirmAddress": def.UserVerifyEmailAddress + "?id=" + user.ID + "&token=" + verificationToken,
 		}),
 	}, nil
 

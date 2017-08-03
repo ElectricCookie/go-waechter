@@ -17,6 +17,14 @@ func internalError(err error) *AuthError {
 	}
 }
 
+func emailNotVerifiedError() *AuthError {
+	return &AuthError{
+		ErrorCode:   "emailNotVerified",
+		Description: "The email address is not verified",
+		IsInternal:  false,
+	}
+}
+
 func cryptError(err error) *AuthError {
 	return &AuthError{
 		ErrorCode:   "cryptError",
@@ -44,8 +52,16 @@ func randomError(err error) *AuthError {
 	}
 }
 
-//InvalidParameters is thrown if the parameters passed to a request are invalid
-func InvalidParameters(err error) *AuthError {
+func invalidPasswordError() *AuthError {
+	return &AuthError{
+		ErrorCode:   "wrongPassword",
+		Description: "The passsword provided was not correct",
+		IsInternal:  false,
+	}
+}
+
+//InvalidParametersError is thrown if the parameters passed to a request are invalid
+func InvalidParametersError(err error) *AuthError {
 	return &AuthError{
 		ErrorCode:   "invalidParameters",
 		Description: "The parameters passed were not valid",
@@ -54,7 +70,7 @@ func InvalidParameters(err error) *AuthError {
 	}
 }
 
-func dbWriteErr(err error) *AuthError {
+func dbWriteError(err error) *AuthError {
 	return &AuthError{
 		ErrorCode:   "dbWriteErr",
 		Description: "Could not write data to the db",
@@ -63,7 +79,7 @@ func dbWriteErr(err error) *AuthError {
 	}
 }
 
-func emailSendErr(err error) *AuthError {
+func emailSendError(err error) *AuthError {
 	return &AuthError{
 		ErrorCode:   "emailSendErr",
 		Description: "Could not send the email",

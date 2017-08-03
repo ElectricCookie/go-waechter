@@ -77,3 +77,42 @@ The refresh tokens are saved as JWT to httpOnly cookies (if you're using the gin
 ```
 
 
+## Gin Adapter
+
+* POST: /auth/login/username
+    * Encoding: application/json
+    * Parameters
+        ```js
+            {
+                "username": string,
+                "password": string,
+                "rememberMe": boolean
+            }
+        ```
+    * Returns
+        * Errors
+            ```js
+            {
+                "errorCode": "internalErrro" / "wrongPassword" / "userNotFound",
+                "description": string,
+            }
+            ``` 
+        * Result
+            ```js
+            {
+                "status": true
+            }
+            ```
+
+            **JWT** is stored in a cookie called "Waechter-RefreshToken" 
+* POST /auth/login/email
+    * Encoding: application/json
+* POST /auth/login/emailOrUsername
+    * Encoding: application/json
+* POST /auth/register
+    * Encoding: application/json
+* POST /auth/forgot-password
+    * Encoding: application/json
+* POST /auth/reset-password
+    * Encoding: application/json
+

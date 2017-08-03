@@ -1,25 +1,27 @@
-package waechter
+package dbMemory
 
 import (
 	"errors"
+
+	waechter "github.com/ElectricCookie/go-waechter"
 )
 
 //MemoryAdapter is a  test adapter that stores all data in RAM
 type MemoryAdapter struct {
-	users  []*User
-	tokens []*RefreshToken
+	users  []*waechter.User
+	tokens []*waechter.RefreshToken
 }
 
 //Reset clears all data
 func (adapter *MemoryAdapter) Reset() {
 
-	adapter.users = []*User{}
-	adapter.tokens = []*RefreshToken{}
+	adapter.users = []*waechter.User{}
+	adapter.tokens = []*waechter.RefreshToken{}
 
 }
 
 // GetUserByEmail get user by email
-func (adapter *MemoryAdapter) GetUserByEmail(email string) (*User, error) {
+func (adapter *MemoryAdapter) GetUserByEmail(email string) (*waechter.User, error) {
 
 	for _, user := range adapter.users {
 
@@ -34,7 +36,7 @@ func (adapter *MemoryAdapter) GetUserByEmail(email string) (*User, error) {
 }
 
 // GetUserByUsername get user by username
-func (adapter *MemoryAdapter) GetUserByUsername(username string) (*User, error) {
+func (adapter *MemoryAdapter) GetUserByUsername(username string) (*waechter.User, error) {
 
 	for _, user := range adapter.users {
 
@@ -48,7 +50,7 @@ func (adapter *MemoryAdapter) GetUserByUsername(username string) (*User, error) 
 }
 
 // GetUserByID get user by ID
-func (adapter *MemoryAdapter) GetUserByID(id string) (*User, error) {
+func (adapter *MemoryAdapter) GetUserByID(id string) (*waechter.User, error) {
 
 	for _, user := range adapter.users {
 
@@ -62,7 +64,7 @@ func (adapter *MemoryAdapter) GetUserByID(id string) (*User, error) {
 }
 
 // GetUserByUsernameOrEmail get user by username or email
-func (adapter *MemoryAdapter) GetUserByUsernameOrEmail(input string) (*User, error) {
+func (adapter *MemoryAdapter) GetUserByUsernameOrEmail(input string) (*waechter.User, error) {
 	for _, user := range adapter.users {
 		if user.Username == input || user.Email == input {
 			return user, nil
@@ -73,7 +75,7 @@ func (adapter *MemoryAdapter) GetUserByUsernameOrEmail(input string) (*User, err
 }
 
 // CreateUser insert new user
-func (adapter *MemoryAdapter) CreateUser(user *User) error {
+func (adapter *MemoryAdapter) CreateUser(user *waechter.User) error {
 
 	adapter.users = append(adapter.users, user)
 
@@ -97,7 +99,7 @@ func (adapter *MemoryAdapter) VerifyEmail(userID string) error {
 }
 
 // InsertRefreshToken insert a token
-func (adapter *MemoryAdapter) InsertRefreshToken(token *RefreshToken) error {
+func (adapter *MemoryAdapter) InsertRefreshToken(token *waechter.RefreshToken) error {
 
 	adapter.tokens = append(adapter.tokens, token)
 
@@ -106,7 +108,7 @@ func (adapter *MemoryAdapter) InsertRefreshToken(token *RefreshToken) error {
 }
 
 // FindRefreshToken retrieve by userID and tokenID
-func (adapter *MemoryAdapter) FindRefreshToken(userID string, tokenID string) (*RefreshToken, error) {
+func (adapter *MemoryAdapter) FindRefreshToken(userID string, tokenID string) (*waechter.RefreshToken, error) {
 
 	for _, token := range adapter.tokens {
 

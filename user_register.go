@@ -6,8 +6,8 @@ import (
 	validator "gopkg.in/asaskevich/govalidator.v4"
 )
 
-// RegisterParams are the parameters used to register a new user.
-type RegisterParams struct {
+//UserRegisterParams are the parameters used to register a new user.
+type UserRegisterParams struct {
 	Username  string `valid:"required" json:"username" binding:"required"`
 	Password  string `valid:"required" json:"password" binding:"required"`
 	Email     string `valid:"required,email" json:"email" binding:"required"`
@@ -16,13 +16,13 @@ type RegisterParams struct {
 	Language  string `valid:"required" json:"language" binding:"required"`
 }
 
-//Register a new user
-func (waechter *Waechter) Register(params RegisterParams) *AuthError {
+//UserRegister a new user
+func (waechter *Waechter) UserRegister(params UserRegisterParams) *AuthError {
 	// Check if user exists
 	valid, validationErrs := validator.ValidateStruct(params)
 
 	if !valid {
-		return InvalidParameters(validationErrs)
+		return InvalidParametersError(validationErrs)
 	}
 
 	_, err := waechter.getDBAdapter().GetUserByUsername(params.Username)
@@ -72,7 +72,7 @@ func (waechter *Waechter) Register(params RegisterParams) *AuthError {
 	saveErr := waechter.getDBAdapter().CreateUser(newUser)
 
 	if saveErr != nil {
-		return dbWriteErr(saveErr)
+		return dbWriteError(saveErr)
 	}
 
 	return nil
