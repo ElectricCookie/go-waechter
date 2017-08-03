@@ -55,7 +55,7 @@ func (connector *GinConnector) respondHTTPDefault(data interface{}, err *waechte
 		// Make sure internal errors are not passed to the outer world
 		if err.IsInternal {
 			err.ErrorCode = "internalError"
-			err.Description = "Internal Error occured. "
+			err.Description = "Internal Error occurred. "
 			err.Err = nil
 		}
 
@@ -72,7 +72,7 @@ func (connector *GinConnector) Login(context *gin.Context) {
 	parameters := waechter.LoginEmailOrUsernameData{}
 
 	if !connector.bindParamters(context, &parameters) {
-		return // Error occured
+		return // Error occurred
 	}
 	// Use waechter to log in
 	refreshToken, err := connector.Waechter.LoginWithUsernameOrEmail(parameters)
@@ -92,7 +92,7 @@ func (connector *GinConnector) Register(context *gin.Context) {
 	params := waechter.RegisterParams{}
 
 	if !connector.bindParamters(context, &params) {
-		return // Error occured
+		return // Error occurred
 	}
 
 	err := connector.Waechter.Register(params)
