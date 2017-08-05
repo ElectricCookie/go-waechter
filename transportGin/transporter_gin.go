@@ -37,7 +37,9 @@ func (connector *GinConnector) bindParamters(c *gin.Context, parameters interfac
 //DefaultRoutes mounts routes under the /auth/ path
 func (connector *GinConnector) DefaultRoutes(engine *gin.Engine) {
 
-	engine.POST("/auth/login", connector.Login)
+	engine.POST("/auth/login/username-or-email", connector.LoginUsernameOrEmail)
+	engine.POST("/auth/login/username", connector.LoginUsername)
+	engine.POST("/auth/login/email", connector.LoginEmail)
 	engine.POST("/auth/register", connector.Register)
 	engine.POST("/auth/forgotPassword", connector.ForgotPassword)
 	engine.POST("/auth/resetPassword", connector.ResetPassword)
@@ -65,8 +67,48 @@ func (connector *GinConnector) respondHTTPDefault(data interface{}, err *waechte
 	}
 }
 
-//Login to an account
-func (connector *GinConnector) Login(context *gin.Context) {
+//LoginUsername ...
+func (connector *GinConnector) LoginUsername(context *gin.Context) {
+	// Retrieve data
+
+	parameters := waechter.UserLoginUsernameData{}
+
+	if !connector.bindParamters(context, &parameters) {
+		return // Error occurred
+	}
+	// Use waechter to log in
+	refreshToken, err := connector.Waechter.UserLoginUsername(parameters)
+
+	if err == nil {
+		context.SetCookie("Waechter-RefreshToken", *refreshToken, 2629743, connector.AuthPath, connector.Domain, connector.ForceHTTPS, true)
+	}
+
+	connector.respondHTTPDefault(struct{ status bool }{true}, err, context)
+
+}
+
+//LoginEmail ...
+func (connector *GinConnector) LoginEmail(context *gin.Context) {
+	// Retrieve data
+
+	parameters := waechter.UserLoginEmailData{}
+
+	if !connector.bindParamters(context, &parameters) {
+		return // Error occurred
+	}
+	// Use waechter to log in
+	refreshToken, err := connector.Waechter.UserLoginEmail(parameters)
+
+	if err == nil {
+		context.SetCookie("Waechter-RefreshToken", *refreshToken, 2629743, connector.AuthPath, connector.Domain, connector.ForceHTTPS, true)
+	}
+
+	connector.respondHTTPDefault(struct{ status bool }{true}, err, context)
+
+}
+
+//LoginUsernameOrEmail ...
+func (connector *GinConnector) LoginUsernameOrEmail(context *gin.Context) {
 	// Retrieve data
 
 	parameters := waechter.UserLoginEmailOrUsernameData{}

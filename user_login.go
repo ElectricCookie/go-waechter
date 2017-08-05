@@ -94,7 +94,7 @@ func (waechter *Waechter) performLogin(password string, user *User, rememberMe b
 
 	}
 
-	token, tokenError := waechter.GenerateRefreshToken(user.ID, expires)
+	token, tokenError := waechter.UserGenerateRefreshToken(user.ID, expires)
 
 	if tokenError != nil {
 		return nil, tokenError

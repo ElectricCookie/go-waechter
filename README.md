@@ -93,7 +93,7 @@ The refresh tokens are saved as JWT to httpOnly cookies (if you're using the gin
         * Errors
             ```js
             {
-                "errorCode": "internalErrro" / "wrongPassword" / "userNotFound",
+                "errorCode": "internalError" / "wrongPassword" / "userNotFound",
                 "description": string,
             }
             ``` 

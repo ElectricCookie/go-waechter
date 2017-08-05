@@ -33,7 +33,7 @@ func NewMongoAdapter(address string, db string) *MongoAdapter {
 // GetUserByEmail get user by email
 func (adapter *MongoAdapter) GetUserByEmail(email string) (*waechter.User, error) {
 
-	user := User{}
+	user := waechter.User{}
 
 	err := adapter.Db.C("users").Find(bson.M{
 		"email": strings.ToLower(email),
@@ -48,7 +48,7 @@ func (adapter *MongoAdapter) GetUserByEmail(email string) (*waechter.User, error
 }
 
 // GetUserByUsername get user by username
-func (adapter *waechter.MongoAdapter) GetUserByUsername(username string) (*waechter.User, error) {
+func (adapter *MongoAdapter) GetUserByUsername(username string) (*waechter.User, error) {
 
 	user := waechter.User{}
 
@@ -64,8 +64,8 @@ func (adapter *waechter.MongoAdapter) GetUserByUsername(username string) (*waech
 }
 
 // GetUserByID get user by ID
-func (adapter *waechter.MongoAdapter) GetUserByID(id string) (*waechter.User, error) {
-	user := User{}
+func (adapter *MongoAdapter) GetUserByID(id string) (*waechter.User, error) {
+	user := waechter.User{}
 
 	err := adapter.Db.C("users").FindId(id).One(&user)
 
@@ -77,8 +77,8 @@ func (adapter *waechter.MongoAdapter) GetUserByID(id string) (*waechter.User, er
 }
 
 // GetUserByUsernameOrEmail get user by username or email
-func (adapter *waechter.MongoAdapter) GetUserByUsernameOrEmail(input string) (*waechter.User, error) {
-	user := User{}
+func (adapter *MongoAdapter) GetUserByUsernameOrEmail(input string) (*waechter.User, error) {
+	user := waechter.User{}
 
 	err := adapter.Db.C("users").Find(bson.M{"$or": []bson.M{bson.M{"username": input}, bson.M{"email": strings.ToLower(input)}}}).One(&user)
 
@@ -113,9 +113,9 @@ func (adapter *MongoAdapter) InsertRefreshToken(token *waechter.RefreshToken) er
 }
 
 // FindRefreshToken retrieve by userID and tokenID
-func (adapter *MongoAdapter) FindRefreshToken(userID string, tokenID string) (*RefreshToken, error) {
+func (adapter *MongoAdapter) FindRefreshToken(userID string, tokenID string) (*waechter.RefreshToken, error) {
 
-	token := RefreshToken{}
+	token := waechter.RefreshToken{}
 
 	err := adapter.Db.C("refreshTokens").Find(bson.M{
 		"userId": userID,

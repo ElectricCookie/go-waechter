@@ -6,8 +6,8 @@ import (
 	jwt "github.com/dgrijalva/jwt-go"
 )
 
-// GenerateRefreshToken generates a new refresh-token and saves it in the database
-func (waechter *Waechter) GenerateRefreshToken(userID string, expires int64) (*string, *AuthError) {
+// UserGenerateRefreshToken generates a new refresh-token and saves it in the database
+func (waechter *Waechter) UserGenerateRefreshToken(userID string, expires int64) (*string, *AuthError) {
 
 	// Generate token
 
@@ -85,8 +85,13 @@ func (waechter *Waechter) CheckRefreshToken(jwtToken string) (*jwt.StandardClaim
 
 }
 
+type accessClaims struct {
+	jwt.StandardClaims
+	Realm string `json:"rlm"`
+}
+
 // GenerateAccessToken issues a new access token based on a refresh token
-func (waechter *Waechter) GenerateAccessToken(refreshToken string, isAllowed func(*jwt.StandardClaims) bool) (*string, *AuthError) {
+func (waechter *Waechter) GenerateAccessToken(refreshToken string, realm string) (*string, *AuthError) {
 
 	claims, err := waechter.CheckRefreshToken(refreshToken)
 	if err != nil {
@@ -97,11 +102,14 @@ func (waechter *Waechter) GenerateAccessToken(refreshToken string, isAllowed fun
 		}
 	}
 
-	result, err := jwt.NewWithClaims(jwt.SigningMethodHS512, jwt.StandardClaims{
-		Issuer:    waechter.JwtIssuer,
-		IssuedAt:  time.Now().Unix(),
-		Subject:   claims.Subject,
-		ExpiresAt: time.Now().Add(0).Unix(),
+	result, err := jwt.NewWithClaims(jwt.SigningMethodHS512, accessClaims{
+		StandardClaims: jwt.StandardClaims{
+			Issuer:    waechter.JwtIssuer,
+			IssuedAt:  time.Now().Unix(),
+			Subject:   claims.Subject,
+			ExpiresAt: time.Now().Add(time.Hour * 2).Unix(),
+		},
+		Realm: realm,
 	}).SignedString(waechter.JwtSecret)
 
 	if err != nil {
