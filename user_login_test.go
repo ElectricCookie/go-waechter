@@ -68,7 +68,7 @@ var _ = Describe("User:UserVerifyEmailAddress", func() {
 
 			Expect(*refreshToken).ToNot(BeEmpty())
 
-			_, verifyErr := w.CheckRefreshToken(*refreshToken)
+			_, _, verifyErr := w.CheckRefreshToken(*refreshToken)
 
 			Expect(verifyErr).To(BeNil())
 

@@ -76,7 +76,7 @@ var _ = Describe("User:Register", func() {
 	w := waechter.New("somesecret", "go-waechter", dbAdapter, emailAdapter, translations)
 
 	gin.DefaultWriter = GinkgoWriter
-	ginC := transportGin.GinConnector{
+	ginC := transportGin.Connector{
 		Waechter:   w,
 		AuthPath:   "/auth",
 		Domain:     "",

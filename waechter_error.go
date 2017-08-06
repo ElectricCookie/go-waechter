@@ -70,6 +70,15 @@ func InvalidParametersError(err error) *AuthError {
 	}
 }
 
+//NotLoggedInError obviously.
+func NotLoggedInError() *AuthError {
+	return &AuthError{
+		ErrorCode:   "notLoggedIn",
+		Description: "There was no refresh token present.",
+		IsInternal:  false,
+	}
+}
+
 func dbWriteError(err error) *AuthError {
 	return &AuthError{
 		ErrorCode:   "dbWriteErr",

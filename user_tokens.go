@@ -51,7 +51,7 @@ func (waechter *Waechter) UserGenerateRefreshToken(userID string, expires int64)
 }
 
 // CheckRefreshToken checks if a refresh token is valid. In case of invalidity a theft is assumed and the users sessions are nuked
-func (waechter *Waechter) CheckRefreshToken(jwtToken string) (*jwt.StandardClaims, error) {
+func (waechter *Waechter) CheckRefreshToken(jwtToken string) (*User, *jwt.StandardClaims, error) {
 
 	claims := jwt.StandardClaims{}
 	_, parseError := jwt.ParseWithClaims(jwtToken, &claims, func(token *jwt.Token) (interface{}, error) {
@@ -62,13 +62,13 @@ func (waechter *Waechter) CheckRefreshToken(jwtToken string) (*jwt.StandardClaim
 	userID := claims.Subject
 
 	if parseError != nil {
-		return nil, parseError
+		return nil, nil, parseError
 	}
 
 	user, userErr := waechter.getDBAdapter().GetUserByID(userID)
 
 	if userErr != nil {
-		return nil, userErr
+		return nil, nil, userErr
 	}
 
 	// Hash token
@@ -78,10 +78,10 @@ func (waechter *Waechter) CheckRefreshToken(jwtToken string) (*jwt.StandardClaim
 	_, retrieveError := waechter.getDBAdapter().FindRefreshToken(userID, string(dk))
 
 	if retrieveError != nil {
-		return nil, retrieveError
+		return nil, nil, retrieveError
 	}
 
-	return &claims, nil
+	return user, &claims, nil
 
 }
 
@@ -90,10 +90,29 @@ type accessClaims struct {
 	Realm string `json:"rlm"`
 }
 
+// CheckAccessToken make sure the access token is valid
+func (waechter *Waechter) CheckAccessToken(realm string, token string) (*jwt.StandardClaims, *AuthError) {
+	claims := accessClaims{}
+	_, parseError := jwt.ParseWithClaims(token, &claims, func(token *jwt.Token) (interface{}, error) {
+		return []byte(waechter.JwtSecret), nil
+	})
+
+	if parseError != nil || claims.Realm != realm {
+		return nil, &AuthError{
+			ErrorCode:   "invalidAccessToken",
+			Description: "The access token passed was invalid",
+			IsInternal:  false,
+		}
+	}
+
+	return &claims.StandardClaims, nil
+
+}
+
 // GenerateAccessToken issues a new access token based on a refresh token
 func (waechter *Waechter) GenerateAccessToken(refreshToken string, realm string) (*string, *AuthError) {
 
-	claims, err := waechter.CheckRefreshToken(refreshToken)
+	_, claims, err := waechter.CheckRefreshToken(refreshToken)
 	if err != nil {
 		return nil, &AuthError{
 			ErrorCode:   "invalidRefreshToken",

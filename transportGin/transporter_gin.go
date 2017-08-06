@@ -3,19 +3,23 @@ package transportGin
 import (
 	"encoding/json"
 	"io"
+	"time"
+
+	"github.com/dgrijalva/jwt-go"
 
 	waechter "github.com/ElectricCookie/go-waechter"
 	"github.com/gin-gonic/gin"
 )
 
-//GinConnector is used to setup gin with go-waechter
-type GinConnector struct {
-	Waechter   *waechter.Waechter
-	Debug      bool
-	AuthPath   string
-	Domain     string
-	Writer     io.Writer
-	ForceHTTPS bool
+//Connector is used to setup gin with go-waechter
+type Connector struct {
+	Waechter           *waechter.Waechter
+	Debug              bool
+	AuthPath           string
+	Domain             string
+	Writer             io.Writer
+	ForceHTTPS         bool
+	AccesTokenLifetime time.Duration
 }
 
 //JSONResponse describes the format in which data is returned from the connector
@@ -25,7 +29,7 @@ type JSONResponse struct {
 	Data   interface{}         `json:"data"`
 }
 
-func (connector *GinConnector) bindParamters(c *gin.Context, parameters interface{}) bool {
+func (connector *Connector) bindParamters(c *gin.Context, parameters interface{}) bool {
 	err := c.BindJSON(parameters)
 	if err != nil {
 		connector.respondHTTPDefault(nil, waechter.InvalidParametersError(err), c)
@@ -35,7 +39,7 @@ func (connector *GinConnector) bindParamters(c *gin.Context, parameters interfac
 }
 
 //DefaultRoutes mounts routes under the /auth/ path
-func (connector *GinConnector) DefaultRoutes(engine *gin.Engine) {
+func (connector *Connector) DefaultRoutes(engine *gin.Engine) {
 
 	engine.POST("/auth/login/username-or-email", connector.LoginUsernameOrEmail)
 	engine.POST("/auth/login/username", connector.LoginUsername)
@@ -47,7 +51,7 @@ func (connector *GinConnector) DefaultRoutes(engine *gin.Engine) {
 
 }
 
-func (connector *GinConnector) respondHTTPDefault(data interface{}, err *waechter.AuthError, context *gin.Context) {
+func (connector *Connector) respondHTTPDefault(data interface{}, err *waechter.AuthError, context *gin.Context) {
 	if err != nil {
 		if connector.Debug {
 			s, _ := json.Marshal(err)
@@ -68,7 +72,7 @@ func (connector *GinConnector) respondHTTPDefault(data interface{}, err *waechte
 }
 
 //LoginUsername ...
-func (connector *GinConnector) LoginUsername(context *gin.Context) {
+func (connector *Connector) LoginUsername(context *gin.Context) {
 	// Retrieve data
 
 	parameters := waechter.UserLoginUsernameData{}
@@ -88,7 +92,7 @@ func (connector *GinConnector) LoginUsername(context *gin.Context) {
 }
 
 //LoginEmail ...
-func (connector *GinConnector) LoginEmail(context *gin.Context) {
+func (connector *Connector) LoginEmail(context *gin.Context) {
 	// Retrieve data
 
 	parameters := waechter.UserLoginEmailData{}
@@ -108,7 +112,7 @@ func (connector *GinConnector) LoginEmail(context *gin.Context) {
 }
 
 //LoginUsernameOrEmail ...
-func (connector *GinConnector) LoginUsernameOrEmail(context *gin.Context) {
+func (connector *Connector) LoginUsernameOrEmail(context *gin.Context) {
 	// Retrieve data
 
 	parameters := waechter.UserLoginEmailOrUsernameData{}
@@ -128,7 +132,7 @@ func (connector *GinConnector) LoginUsernameOrEmail(context *gin.Context) {
 }
 
 // Register a new account
-func (connector *GinConnector) Register(context *gin.Context) {
+func (connector *Connector) Register(context *gin.Context) {
 	// Retrieve data
 
 	params := waechter.UserRegisterParams{}
@@ -157,7 +161,7 @@ func (connector *GinConnector) Register(context *gin.Context) {
 }
 
 //VerifyEmail of a new account
-func (connector *GinConnector) VerifyEmail(context *gin.Context) {
+func (connector *Connector) VerifyEmail(context *gin.Context) {
 
 	parameters := waechter.UserVerifyEmailParameters{}
 
@@ -172,7 +176,7 @@ func (connector *GinConnector) VerifyEmail(context *gin.Context) {
 }
 
 //ForgotPassword requests a reset password email
-func (connector *GinConnector) ForgotPassword(context *gin.Context) {
+func (connector *Connector) ForgotPassword(context *gin.Context) {
 
 	parameters := waechter.ForgotPasswordParams{}
 
@@ -193,7 +197,7 @@ func (connector *GinConnector) ForgotPassword(context *gin.Context) {
 }
 
 //ResetPassword resets the password of a user
-func (connector *GinConnector) ResetPassword(context *gin.Context) {
+func (connector *Connector) ResetPassword(context *gin.Context) {
 
 	parameters := waechter.ResetPasswordParams{}
 
@@ -204,5 +208,82 @@ func (connector *GinConnector) ResetPassword(context *gin.Context) {
 	err := connector.Waechter.ResetPassword(parameters)
 
 	connector.respondHTTPDefault(struct{ status bool }{true}, err, context)
+
+}
+
+func (connector *Connector) GetRefreshToken(context *gin.Context) (string, error) {
+
+	refreshToken, err := context.GetCookie("Waechter-RefreshToken")
+
+	if err != nil {
+		return "", err
+	}
+
+	return refreshToken, nil
+
+}
+
+func (connector *Connector) CreateAccessToken(target string, context *gin.Context, verify func(*jwt.StandardClaims, *waechter.User) *waechter.AuthError) {
+
+	// Retrieve refresh token
+
+	refreshToken, err := connector.GetRefreshToken(context)
+
+	if err != nil {
+		connector.respondHTTPDefault(nil, waechter.NotLoggedInError(), context)
+		return
+	}
+
+	user, claims, err := connector.Waechter.CheckRefreshToken(refreshToken)
+
+	if err != nil {
+		connector.respondHTTPDefault(nil, waechter.NotLoggedInError(), context)
+		return
+	}
+
+	// Verify
+
+	authErr := verify(claims, user)
+
+	if authErr != nil {
+		connector.respondHTTPDefault(nil, authErr, context)
+		return
+	}
+
+	accessToken, authErr := connector.Waechter.GenerateAccessToken(refreshToken, target)
+
+	if authErr != nil {
+		connector.respondHTTPDefault(nil, waechter.NotLoggedInError(), context)
+		return
+	}
+
+	context.SetCookie("Waechter-Access:"+target, *accessToken, int(connector.AccesTokenLifetime.Seconds()), "", "", connector.ForceHTTPS, true)
+
+}
+
+func (connector *Connector) GetAccessToken(target string, context *gin.Context) (string, *waechter.AuthError) {
+
+	accessToken, err := context.Cookie("Waechter-Access:" + target)
+
+	if err != nil {
+
+		authErr := &waechter.AuthError{
+			ErrorCode:   "notEnoughRights",
+			Description: "No Access token for this action present.",
+		}
+		return "", authErr
+	}
+
+	return accessToken, nil
+
+}
+
+func (connector *Connector) CheckAccessToken(target string, context *gin.Context) (*jwt.StandardClaims, *waechter.AuthError) {
+	var accessToken string
+	accessToken, err := connector.GetAccessToken(target, context)
+	if err != nil {
+		return nil, err
+	}
+	return connector.Waechter.CheckAccessToken(target, accessToken)
 
 }
