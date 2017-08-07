@@ -7,17 +7,16 @@ import:
 - package: golang.org/x/crypto
   subpackages:
   - scrypt
-- package: gopkg.in/asaskevich/govalidator.v4
+- package: github.com/asaskevich/govalidator
   version: ^6.0.0
-- package: gopkg.in/gomail.v2
+- package: github.com/go-gomail/gomail
   version: ^2.0.0
-- package: gopkg.in/mgo.v2
+- package: github.com/go-mgo/mgo
+  version: ^2.0.0
   subpackages:
   - bson
+- package: github.com/gin-contrib/sse
 testImport:
-- package: github.com/braintree/manners
-  version: ^0.4.0
-- package: github.com/franela/goreq
 - package: github.com/onsi/ginkgo
   version: ^1.4.0
 - package: github.com/onsi/gomega

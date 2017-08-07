@@ -3,7 +3,7 @@ package waechter
 import (
 	"time"
 
-	validator "gopkg.in/asaskevich/govalidator.v4"
+	validator "github.com/asaskevich/govalidator"
 )
 
 //UserRegisterParams are the parameters used to register a new user.
