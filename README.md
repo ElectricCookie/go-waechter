@@ -2,6 +2,7 @@
     <img alt="Waechter - Logo" src="http://imgur.com/WWeVTGh.png" height="30"/>
     <br/>
     <br/>
+    <a href="https://circleci.com/gh/ElectricCookie/go-waechter/tree/master"><img alt="CircleCI build status" src="https://circleci.com/gh/ElectricCookie/go-waechter/tree/master.svg?style=svg" /></a>
     <a href="https://goreportcard.com/report/github.com/ElectricCookie/go-waechter"><img alt="Go Report Card" src="https://goreportcard.com/badge/github.com/ElectricCookie/go-waechter" /></a>
     <a href="https://exago.io/project/github.com/ElectricCookie/go-waechter"><img alt="Exago Coverage" src="https://api.exago.io:443/badge/cov/github.com/ElectricCookie/go-waechter" /></a>
     <a href="https://exago.io/project/github.com/ElectricCookie/go-waechter"><img alt="3rd parties" src="https://api.exago.io:443/badge/thirdparties/github.com/ElectricCookie/go-waechter" /></a>
