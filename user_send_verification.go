@@ -1,6 +1,6 @@
 package waechter
 
-import govalidator "github.com/asaskevich/govalidator"
+import govalidator "gopkg.in/asaskevich/govalidator.v4"
 
 //SendVerificationEmail sends an email to the user with a link to verify their email address
 func (waechter *Waechter) SendVerificationEmail(emailAddress string) (*string, *AuthError) {

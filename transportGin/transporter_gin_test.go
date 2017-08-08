@@ -2,9 +2,7 @@ package transportGin_test
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	waechter "github.com/ElectricCookie/go-waechter"
@@ -12,6 +10,8 @@ import (
 	"github.com/ElectricCookie/go-waechter/localeDefault"
 	"github.com/ElectricCookie/go-waechter/testEmail"
 	"github.com/ElectricCookie/go-waechter/transportGin"
+	"github.com/braintree/manners"
+	"github.com/franela/goreq"
 	"github.com/gin-gonic/gin"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -19,9 +19,10 @@ import (
 
 func makeRequest(method string, endpoint string, parameters interface{}, result interface{}, cookies *http.Cookie) *waechter.AuthError {
 
-	req, err := http.NewRequest(method, endpoint, parameters)
-	if err != nil {
-		panic(err)
+	req := goreq.Request{
+		Uri:    "http://127.0.0.1:3333" + endpoint,
+		Method: method,
+		Body:   parameters,
 	}
 
 	if cookies != nil {
@@ -88,7 +89,9 @@ var _ = Describe("User:Register", func() {
 
 	ginC.DefaultRoutes(r)
 
-	s := httptest.NewServer(r)
+	go func() {
+		manners.ListenAndServe("127.0.0.1:3333", r)
+	}()
 
 	Describe("Register", func() {
 
@@ -96,7 +99,7 @@ var _ = Describe("User:Register", func() {
 			res := struct {
 				Token string `json:"token"`
 			}{}
-			authErr := makeRequest("POST", fmt.Sprint(s.URL, "/auth/register"), waechter.UserRegisterParams{
+			authErr := makeRequest("POST", "/auth/register", waechter.UserRegisterParams{
 				Username:  "ElectricCookie",
 				Password:  "Password123",
 				Email:     "test-email@foo.com",
@@ -231,7 +234,7 @@ var _ = Describe("User:Register", func() {
 
 	AfterSuite(func() {
 		// Close the server to allow the program to shut down properly.
-		s.Close()
+		manners.Close()
 
 	})
 
