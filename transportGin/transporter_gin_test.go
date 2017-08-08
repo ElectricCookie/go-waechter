@@ -166,7 +166,7 @@ var _ = Describe("User:Register", func() {
 
 		It("should fail to log in somebody with the wrong credentials", func() {
 
-			authErr := makeRequest("POST", "/auth/login", waechter.UserLoginEmailOrUsernameData{
+			authErr := makeRequest("POST", "/auth/login/username-or-email", waechter.UserLoginEmailOrUsernameData{
 				UsernameOrEmail: "ElectricCookie",
 				Password:        "Password1234",
 				RememberMe:      false,
@@ -174,7 +174,7 @@ var _ = Describe("User:Register", func() {
 
 			Expect(authErr).ToNot(BeNil())
 
-			authErr = makeRequest("POST", "/auth/login", waechter.UserLoginEmailOrUsernameData{
+			authErr = makeRequest("POST", "/auth/login/username-or-email", waechter.UserLoginEmailOrUsernameData{
 				UsernameOrEmail: "ElectricCookiee",
 				Password:        "Password123",
 				RememberMe:      false,
@@ -220,7 +220,7 @@ var _ = Describe("User:Register", func() {
 
 			Expect(authErr).To(BeNil())
 
-			authErr = makeRequest("POST", "/auth/login", waechter.UserLoginEmailOrUsernameData{
+			authErr = makeRequest("POST", "/auth/login/username-or-email", waechter.UserLoginEmailOrUsernameData{
 				UsernameOrEmail: "ElectricCookie",
 				Password:        "newPassword123",
 				RememberMe:      false,
