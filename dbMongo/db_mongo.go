@@ -5,8 +5,8 @@ import (
 	"strings"
 
 	"github.com/ElectricCookie/go-waechter"
-	mgo "github.com/go-mgo/mgo"
-	"github.com/go-mgo/mgo/bson"
+	mgo "gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 )
 
 //MongoAdapter is a ready adapter to connect go-waechter to mongodb
