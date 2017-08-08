@@ -213,7 +213,7 @@ func (connector *Connector) ResetPassword(context *gin.Context) {
 
 func (connector *Connector) GetRefreshToken(context *gin.Context) (string, error) {
 
-	refreshToken, err := context.GetCookie("Waechter-RefreshToken")
+	refreshToken, err := context.Cookie("Waechter-RefreshToken")
 
 	if err != nil {
 		return "", err
