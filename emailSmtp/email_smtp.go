@@ -2,7 +2,7 @@ package emailSmtp
 
 import (
 	waechter "github.com/ElectricCookie/go-waechter"
-	gomail "gopkg.in/gomail.v2"
+	gomail "github.com/go-gomail/gomail"
 )
 
 //New creates a new SMTP adapter

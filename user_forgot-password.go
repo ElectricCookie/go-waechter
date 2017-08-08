@@ -1,7 +1,7 @@
 package waechter
 
 import (
-	validator "gopkg.in/asaskevich/govalidator.v4"
+	validator "github.com/asaskevich/govalidator"
 )
 
 //ForgotPasswordParams describes parameters passed to ForgotPassword
