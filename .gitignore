@@ -25,6 +25,3 @@ _testmain.go
 node_modules/
 test_results/
 .vscode/
-
-# ignore glide dependencies
-vendor
