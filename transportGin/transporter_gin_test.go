@@ -1,6 +1,7 @@
 package transportGin_test
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -17,17 +18,21 @@ import (
 	. "github.com/onsi/gomega"
 )
 
+var client = http.Client{}
+
 func makeRequest(method string, endpoint string, parameters interface{}, result interface{}, cookies *http.Cookie) *waechter.AuthError {
 
-	req, err := http.NewRequest(method, endpoint, parameters)
+	body, err := json.Marshal(parameters)
+
+	req, err := http.NewRequest(method, endpoint, bytes.NewReader(body))
 	if err != nil {
 		panic(err)
 	}
 
 	if cookies != nil {
-		req = req.WithCookie(cookies)
+		req.AddCookie(cookies)
 	}
-	res, err := req.Do()
+	res, err := client.Do(req)
 
 	if err != nil {
 		panic(err)
@@ -36,7 +41,9 @@ func makeRequest(method string, endpoint string, parameters interface{}, result 
 	// Try to get the result
 	response := transportGin.JSONResponse{}
 
-	res.Body.FromJsonTo(&response)
+	decoder := json.NewDecoder(res.Body)
+
+	decoder.Decode(&response)
 
 	if response.Status {
 
@@ -90,6 +97,8 @@ var _ = Describe("User:Register", func() {
 
 	s := httptest.NewServer(r)
 
+	fmt.Println(fmt.Sprint(s.URL, "/auth/register"))
+
 	Describe("Register", func() {
 
 		It("Should register a new user", func() {
@@ -120,7 +129,7 @@ var _ = Describe("User:Register", func() {
 
 		It("should verify the email of a user", func() {
 			user, _ := dbAdapter.GetUserByUsername("ElectricCookie")
-			authErr := makeRequest("POST", "/auth/verifyEmail", waechter.UserVerifyEmailParameters{
+			authErr := makeRequest("POST", fmt.Sprint(s.URL, "/auth/verify-email"), waechter.UserVerifyEmailParameters{
 				Token:  verificationToken,
 				UserID: user.ID,
 			}, nil, nil)
@@ -151,7 +160,7 @@ var _ = Describe("User:Register", func() {
 
 		It("should login somebody with the correct credentials in", func() {
 
-			authErr := makeRequest("POST", "/auth/login", waechter.UserLoginEmailOrUsernameData{
+			authErr := makeRequest("POST", fmt.Sprint(s.URL, "/auth/login/username-or-email"), waechter.UserLoginEmailOrUsernameData{
 				UsernameOrEmail: "ElectricCookie",
 				Password:        "Password123",
 				RememberMe:      false,
@@ -163,7 +172,7 @@ var _ = Describe("User:Register", func() {
 
 		It("should fail to log in somebody with the wrong credentials", func() {
 
-			authErr := makeRequest("POST", "/auth/login/username-or-email", waechter.UserLoginEmailOrUsernameData{
+			authErr := makeRequest("POST", fmt.Sprint(s.URL, "/auth/login/username-or-email"), waechter.UserLoginEmailOrUsernameData{
 				UsernameOrEmail: "ElectricCookie",
 				Password:        "Password1234",
 				RememberMe:      false,
@@ -171,7 +180,7 @@ var _ = Describe("User:Register", func() {
 
 			Expect(authErr).ToNot(BeNil())
 
-			authErr = makeRequest("POST", "/auth/login/username-or-email", waechter.UserLoginEmailOrUsernameData{
+			authErr = makeRequest("POST", fmt.Sprint(s.URL, "/auth/login/username-or-email"), waechter.UserLoginEmailOrUsernameData{
 				UsernameOrEmail: "ElectricCookiee",
 				Password:        "Password123",
 				RememberMe:      false,
@@ -188,7 +197,7 @@ var _ = Describe("User:Register", func() {
 			res := struct {
 				Token string `json:"token"`
 			}{}
-			authErr := makeRequest("POST", "/auth/forgotPassword", waechter.ForgotPasswordParams{
+			authErr := makeRequest("POST", fmt.Sprint(s.URL, "/auth/forgot-password"), waechter.ForgotPasswordParams{
 				Email: "test-email@foo.com",
 			}, &res, nil)
 
@@ -209,7 +218,7 @@ var _ = Describe("User:Register", func() {
 		It("Should set the password to a new one", func() {
 			user, _ := dbAdapter.GetUserByUsername("ElectricCookie")
 
-			authErr := makeRequest("POST", "/auth/resetPassword", waechter.ResetPasswordParams{
+			authErr := makeRequest("POST", fmt.Sprint(s.URL, "/auth/reset-password"), waechter.ResetPasswordParams{
 				UserID:      user.ID,
 				NewPassword: "newPassword123",
 				Token:       resetToken,
@@ -217,7 +226,7 @@ var _ = Describe("User:Register", func() {
 
 			Expect(authErr).To(BeNil())
 
-			authErr = makeRequest("POST", "/auth/login/username-or-email", waechter.UserLoginEmailOrUsernameData{
+			authErr = makeRequest("POST", fmt.Sprint(s.URL, "/auth/login/username-or-email"), waechter.UserLoginEmailOrUsernameData{
 				UsernameOrEmail: "ElectricCookie",
 				Password:        "newPassword123",
 				RememberMe:      false,

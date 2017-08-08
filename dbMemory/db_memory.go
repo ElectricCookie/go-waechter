@@ -152,6 +152,7 @@ func (adapter *MemoryAdapter) SetVerificationToken(userID string, token string) 
 
 //SetPassword sets the password
 func (adapter *MemoryAdapter) SetPassword(userID string, hash string) error {
+
 	user, err := adapter.GetUserByID(userID)
 
 	if err != nil {

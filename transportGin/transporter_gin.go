@@ -29,7 +29,7 @@ type JSONResponse struct {
 	Data   interface{}         `json:"data"`
 }
 
-func (connector *Connector) bindParamters(c *gin.Context, parameters interface{}) bool {
+func (connector *Connector) bindParameters(c *gin.Context, parameters interface{}) bool {
 	err := c.BindJSON(parameters)
 	if err != nil {
 		connector.respondHTTPDefault(nil, waechter.InvalidParametersError(err), c)
@@ -45,9 +45,9 @@ func (connector *Connector) DefaultRoutes(engine *gin.Engine) {
 	engine.POST("/auth/login/username", connector.LoginUsername)
 	engine.POST("/auth/login/email", connector.LoginEmail)
 	engine.POST("/auth/register", connector.Register)
-	engine.POST("/auth/forgotPassword", connector.ForgotPassword)
-	engine.POST("/auth/resetPassword", connector.ResetPassword)
-	engine.POST("/auth/verifyEmail", connector.VerifyEmail)
+	engine.POST("/auth/forgot-password", connector.ForgotPassword)
+	engine.POST("/auth/reset-password", connector.ResetPassword)
+	engine.POST("/auth/verify-email", connector.VerifyEmail)
 
 }
 
@@ -77,7 +77,7 @@ func (connector *Connector) LoginUsername(context *gin.Context) {
 
 	parameters := waechter.UserLoginUsernameData{}
 
-	if !connector.bindParamters(context, &parameters) {
+	if !connector.bindParameters(context, &parameters) {
 		return // Error occurred
 	}
 	// Use waechter to log in
@@ -97,7 +97,7 @@ func (connector *Connector) LoginEmail(context *gin.Context) {
 
 	parameters := waechter.UserLoginEmailData{}
 
-	if !connector.bindParamters(context, &parameters) {
+	if !connector.bindParameters(context, &parameters) {
 		return // Error occurred
 	}
 	// Use waechter to log in
@@ -117,7 +117,7 @@ func (connector *Connector) LoginUsernameOrEmail(context *gin.Context) {
 
 	parameters := waechter.UserLoginEmailOrUsernameData{}
 
-	if !connector.bindParamters(context, &parameters) {
+	if !connector.bindParameters(context, &parameters) {
 		return // Error occurred
 	}
 	// Use waechter to log in
@@ -137,7 +137,7 @@ func (connector *Connector) Register(context *gin.Context) {
 
 	params := waechter.UserRegisterParams{}
 
-	if !connector.bindParamters(context, &params) {
+	if !connector.bindParameters(context, &params) {
 		return // Error occurred
 	}
 
@@ -165,7 +165,7 @@ func (connector *Connector) VerifyEmail(context *gin.Context) {
 
 	parameters := waechter.UserVerifyEmailParameters{}
 
-	if !connector.bindParamters(context, &parameters) {
+	if !connector.bindParameters(context, &parameters) {
 		return //Error occurred
 	}
 
@@ -180,7 +180,7 @@ func (connector *Connector) ForgotPassword(context *gin.Context) {
 
 	parameters := waechter.ForgotPasswordParams{}
 
-	if !connector.bindParamters(context, &parameters) {
+	if !connector.bindParameters(context, &parameters) {
 		return //Error occurred
 	}
 
@@ -201,7 +201,7 @@ func (connector *Connector) ResetPassword(context *gin.Context) {
 
 	parameters := waechter.ResetPasswordParams{}
 
-	if !connector.bindParamters(context, &parameters) {
+	if !connector.bindParameters(context, &parameters) {
 		return //Error occurred
 	}
 

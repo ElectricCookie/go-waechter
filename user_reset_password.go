@@ -43,8 +43,17 @@ func (waechter *Waechter) ResetPassword(params ResetPasswordParams) *AuthError {
 		}
 	}
 
-	waechter.getDBAdapter().SetForgotPasswordToken(user.ID, "deactivated")
-	waechter.getDBAdapter().SetPassword(user.ID, newPasswordHash)
+	dbErr := waechter.getDBAdapter().SetForgotPasswordToken(user.ID, "deactivated")
+
+	if dbErr != nil {
+		return internalError(dbErr)
+	}
+
+	dbErr = waechter.getDBAdapter().SetPassword(user.ID, newPasswordHash)
+
+	if dbErr != nil {
+		return internalError(dbErr)
+	}
 
 	// Send email
 
