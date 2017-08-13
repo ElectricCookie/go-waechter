@@ -129,10 +129,7 @@ var _ = Describe("User:Register", func() {
 
 		It("should verify the email of a user", func() {
 			user, _ := dbAdapter.GetUserByUsername("ElectricCookie")
-			authErr := makeRequest("POST", fmt.Sprint(s.URL, "/auth/verify-email"), waechter.UserVerifyEmailParameters{
-				Token:  verificationToken,
-				UserID: user.ID,
-			}, nil, nil)
+			authErr := makeRequest("GET", fmt.Sprint(s.URL, "/auth/verify-email?token="+verificationToken+"&id="+user.ID), nil, nil, nil)
 
 			Expect(authErr).To(BeNil())
 
