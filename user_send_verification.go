@@ -8,21 +8,21 @@ type UserSendVerficationParameters struct {
 }
 
 //UserSendVerificationEmail sends an email to the user with a link to verify their email address
-func (waechter *Waechter) UserSendVerificationEmail(parameters UserSendVerficationParameters) (*string, *AuthError) {
+func (waechter *Waechter) UserSendVerificationEmail(parameters UserSendVerficationParameters) (string, *AuthError) {
 
 	if v, vErr := govalidator.ValidateStruct(parameters); !v {
-		return nil, InvalidParametersError(vErr)
+		return "", InvalidParametersError(vErr)
 	}
 
 	user, err := waechter.DbAdapter.GetUserByEmail(parameters.Email)
 
 	if err != nil {
-		return nil, userNotFoundError(err)
+		return "", userNotFoundError(err)
 	}
 
 	if user.EmailVerfied {
 
-		return nil, &AuthError{
+		return "", &AuthError{
 			ErrorCode:   "alreadyVerified",
 			Description: "The email address is already verified",
 			IsInternal:  false,
@@ -39,15 +39,15 @@ func (waechter *Waechter) UserSendVerificationEmail(parameters UserSendVerficati
 	email, err := waechter.getLocales().GetRegistrationEmail(user, verificationToken)
 
 	if err != nil {
-		return nil, internalError(err)
+		return "", internalError(err)
 	}
 
 	emailErr := waechter.getEmailAdapter().SendEmail(email)
 
 	if emailErr != nil {
-		return nil, emailSendError(emailErr)
+		return "", emailSendError(emailErr)
 	}
 
-	return &verificationToken, nil
+	return verificationToken, nil
 
 }

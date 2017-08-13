@@ -5,9 +5,10 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "templates": "./node_modules/.bin/mjml ./locale_default/mjml/*.mjml -o ./locale_default/templates",
+    "templates": "./node_modules/.bin/mjml ./localeDefault/mjml/*.mjml -o ./localeDefault/templates",
     "assetsTestemail": "go-bindata -o testEmail/test-email-template.go -pkg testEmail testEmail/test-email-template.html",
     "assetsLocales": "go-bindata -o localeDefault/templates.go -pkg localeDefault localeDefault/templates/...",
+    "all": "npm run templates && npm run assetsTestemail && npm run assetsLocales",
     "cov": "ginkgo -cover && go tool cover -html=go-waechter.coverprofile"
   },
   "repository": {

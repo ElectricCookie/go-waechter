@@ -10,23 +10,23 @@ type ForgotPasswordParams struct {
 }
 
 //ForgotPassword sends an email to recover the password
-func (w *Waechter) ForgotPassword(parameters ForgotPasswordParams) (*string, *AuthError) {
+func (w *Waechter) ForgotPassword(parameters ForgotPasswordParams) (string, *AuthError) {
 
 	valid, validationErrs := validator.ValidateStruct(parameters)
 
 	if !valid {
-		return nil, InvalidParametersError(validationErrs)
+		return "", InvalidParametersError(validationErrs)
 	}
 
 	user, err := w.DbAdapter.GetUserByEmail(parameters.Email)
 
-	if err != nil {
-		return nil, userNotFoundError(err)
+	if err != nil || user == nil {
+		return "", userNotFoundError(err)
 	}
 
 	if !user.EmailVerfied {
 
-		return nil, &AuthError{
+		return "", &AuthError{
 			ErrorCode:   "emailNotVerified",
 			Description: "The email address is not verified",
 			IsInternal:  false,
@@ -45,7 +45,7 @@ func (w *Waechter) ForgotPassword(parameters ForgotPasswordParams) (*string, *Au
 	email, err := w.Locales.GetForgotPasswordEmail(user, token)
 
 	if err != nil {
-		return nil, internalError(err)
+		return "", internalError(err)
 	}
 
 	w.EmailAdapter.SendEmail(email)
@@ -53,8 +53,8 @@ func (w *Waechter) ForgotPassword(parameters ForgotPasswordParams) (*string, *Au
 	err = w.DbAdapter.SetForgotPasswordToken(user.ID, hash)
 
 	if err != nil {
-		return nil, dbWriteError(err)
+		return "", dbWriteError(err)
 	}
 
-	return &token, nil
+	return token, nil
 }

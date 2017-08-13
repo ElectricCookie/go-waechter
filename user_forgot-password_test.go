@@ -12,7 +12,7 @@ import (
 var _ = Describe("User:ForgotPassword", func() {
 
 	var w *waechter.Waechter
-	var token *string
+	var token string
 	var user *waechter.User
 
 	BeforeEach(func() {
@@ -54,7 +54,7 @@ var _ = Describe("User:ForgotPassword", func() {
 		BeforeEach(func() {
 			w.UserVerifyEmailAddress(waechter.UserVerifyEmailParameters{
 				UserID: user.ID,
-				Token:  *token,
+				Token:  token,
 			})
 		})
 

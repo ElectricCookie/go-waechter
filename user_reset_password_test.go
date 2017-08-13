@@ -12,7 +12,7 @@ import (
 var _ = Describe("User:ResetPassword", func() {
 
 	var w *waechter.Waechter
-	var token *string
+	var token string
 	var user *waechter.User
 
 	BeforeEach(func() {
@@ -47,7 +47,7 @@ var _ = Describe("User:ResetPassword", func() {
 			Email: user.Email,
 		})
 
-		w.UserVerifyEmailAddress(waechter.UserVerifyEmailParameters{UserID: user.ID, Token: *token})
+		w.UserVerifyEmailAddress(waechter.UserVerifyEmailParameters{UserID: user.ID, Token: token})
 
 	})
 
@@ -61,7 +61,7 @@ var _ = Describe("User:ResetPassword", func() {
 
 			err := w.ResetPassword(waechter.ResetPasswordParams{
 				UserID:      user.ID,
-				Token:       *token,
+				Token:       token,
 				NewPassword: "newPassword",
 			})
 

@@ -12,7 +12,7 @@ import (
 var _ = Describe("User:UserVerifyEmailAddress", func() {
 
 	var w *waechter.Waechter
-	var token *string
+	var token string
 	var user *waechter.User
 
 	BeforeEach(func() {
@@ -53,7 +53,7 @@ var _ = Describe("User:UserVerifyEmailAddress", func() {
 
 		err := w.UserVerifyEmailAddress(waechter.UserVerifyEmailParameters{
 			UserID: user.ID,
-			Token:  *token,
+			Token:  token,
 		})
 
 		Expect(err).To(BeNil())
