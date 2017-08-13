@@ -2,14 +2,19 @@ package waechter
 
 import govalidator "github.com/asaskevich/govalidator"
 
-//SendVerificationEmail sends an email to the user with a link to verify their email address
-func (waechter *Waechter) SendVerificationEmail(emailAddress string) (*string, *AuthError) {
+//UserSendVerficationParameters describes parameters  that are required to request a verification
+type UserSendVerficationParameters struct {
+	Email string `json:"email" validate:"email" binding:"required"`
+}
 
-	if !govalidator.IsEmail(emailAddress) {
-		return nil, InvalidParametersError(nil)
+//UserSendVerificationEmail sends an email to the user with a link to verify their email address
+func (waechter *Waechter) UserSendVerificationEmail(parameters UserSendVerficationParameters) (*string, *AuthError) {
+
+	if v, vErr := govalidator.ValidateStruct(parameters); !v {
+		return nil, InvalidParametersError(vErr)
 	}
 
-	user, err := waechter.DbAdapter.GetUserByEmail(emailAddress)
+	user, err := waechter.DbAdapter.GetUserByEmail(parameters.Email)
 
 	if err != nil {
 		return nil, userNotFoundError(err)
@@ -32,6 +37,10 @@ func (waechter *Waechter) SendVerificationEmail(emailAddress string) (*string, *
 	waechter.getDBAdapter().SetVerificationToken(user.ID, string(tokenHash))
 
 	email, err := waechter.getLocales().GetRegistrationEmail(user, verificationToken)
+
+	if err != nil {
+		return nil, internalError(err)
+	}
 
 	emailErr := waechter.getEmailAdapter().SendEmail(email)
 

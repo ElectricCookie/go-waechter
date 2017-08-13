@@ -25,7 +25,7 @@ func emailNotVerifiedError() *AuthError {
 	}
 }
 
-func cryptError(err error) *AuthError {
+func CryptError(err error) *AuthError {
 	return &AuthError{
 		ErrorCode:   "cryptError",
 		Description: "Encryption failed",
@@ -38,7 +38,7 @@ func userNotFoundError(err error) *AuthError {
 	return &AuthError{
 		ErrorCode:   "userNotFound",
 		Description: "User was not found",
-		IsInternal:  true,
+		IsInternal:  false,
 		Err:         err,
 	}
 }

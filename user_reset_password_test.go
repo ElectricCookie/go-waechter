@@ -43,9 +43,11 @@ var _ = Describe("User:ResetPassword", func() {
 
 		user, _ = w.DbAdapter.GetUserByUsername("ElectricCookie")
 
-		verfiy, _ := w.SendVerificationEmail(user.Email)
+		token, _ = w.UserSendVerificationEmail(waechter.UserSendVerficationParameters{
+			Email: user.Email,
+		})
 
-		w.UserVerifyEmailAddress(waechter.UserVerifyEmailParameters{UserID: user.ID, Token: *verfiy})
+		w.UserVerifyEmailAddress(waechter.UserVerifyEmailParameters{UserID: user.ID, Token: *token})
 
 	})
 

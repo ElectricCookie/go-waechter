@@ -43,7 +43,7 @@ func (waechter *Waechter) UserGenerateRefreshToken(userID string, expires int64)
 
 	resString, err := jwtToken.SignedString([]byte(waechter.JwtSecret))
 	if err != nil {
-		return nil, cryptError(err)
+		return nil, CryptError(err)
 	}
 
 	return &resString, nil
@@ -110,31 +110,21 @@ func (waechter *Waechter) CheckAccessToken(realm string, token string) (*jwt.Sta
 }
 
 // GenerateAccessToken issues a new access token based on a refresh token
-func (waechter *Waechter) GenerateAccessToken(refreshToken string, realm string) (*string, *AuthError) {
-
-	_, claims, err := waechter.CheckRefreshToken(refreshToken)
-	if err != nil {
-		return nil, &AuthError{
-			ErrorCode:   "invalidRefreshToken",
-			Description: "The refresh token passed was invalid",
-			IsInternal:  false,
-		}
-	}
-
+func (waechter *Waechter) GenerateAccessToken(claims *jwt.StandardClaims, realm string, expires time.Duration) (string, *AuthError) {
 	result, err := jwt.NewWithClaims(jwt.SigningMethodHS512, accessClaims{
 		StandardClaims: jwt.StandardClaims{
 			Issuer:    waechter.JwtIssuer,
 			IssuedAt:  time.Now().Unix(),
 			Subject:   claims.Subject,
-			ExpiresAt: time.Now().Add(time.Hour * 2).Unix(),
+			ExpiresAt: time.Now().Add(expires).Unix(),
 		},
 		Realm: realm,
-	}).SignedString(waechter.JwtSecret)
+	}).SignedString([]byte(waechter.JwtSecret))
 
 	if err != nil {
-		return nil, cryptError(err)
+		return "", CryptError(err)
 	}
 
-	return &result, nil
+	return result, nil
 
 }

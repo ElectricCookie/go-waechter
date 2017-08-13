@@ -47,7 +47,7 @@ func (waechter *Waechter) UserLoginUsername(parameters UserLoginUsernameData) (*
 
 // UserLoginEmailOrUsernameData is the required information for logging in
 type UserLoginEmailOrUsernameData struct {
-	UsernameOrEmail string `json:"id" binding:"required"`
+	UsernameOrEmail string `json:"usernameOrEmail" binding:"required"`
 	Password        string `json:"password" binding:"required"`
 	RememberMe      bool   `json:"rememberMe"`
 }

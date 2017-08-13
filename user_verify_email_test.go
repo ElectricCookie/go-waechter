@@ -43,7 +43,9 @@ var _ = Describe("User:UserVerifyEmailAddress", func() {
 
 		user, _ = w.DbAdapter.GetUserByUsername("ElectricCookie")
 
-		token, _ = w.SendVerificationEmail(user.Email)
+		token, _ = w.UserSendVerificationEmail(waechter.UserSendVerficationParameters{
+			Email: user.Email,
+		})
 
 	})
 
