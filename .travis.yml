@@ -8,7 +8,8 @@ install:
     - go get -v -t ./...
     - export PATH=$PATH:$HOME/gopath/bin
 script:
-  - ginkgo -cover 
+  - go test -race -coverprofile=coverage.txt -covermode=atomic
+
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
