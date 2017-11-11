@@ -8,13 +8,13 @@ import (
 //ResetPassword resets the password of a user
 func (connector *Connector) ResetPassword(context *gin.Context) {
 
-	parameters := waechter.ResetPasswordParams{}
+	parameters := waechter.UserResetPasswordParams{}
 
 	if !connector.bindParameters(context, &parameters) {
 		return //Error occurred
 	}
 
-	err := connector.Waechter.ResetPassword(parameters)
+	err := connector.Waechter.UserResetPassword(parameters)
 
 	connector.respondHTTPDefault(struct{ status bool }{true}, err, context)
 

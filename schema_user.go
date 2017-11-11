@@ -4,17 +4,24 @@ import "time"
 
 // User is the general user structure
 type User struct {
-	ID                  string    `bson:"_id"`
-	Username            string    `bson:"username"`
-	FirstName           string    `bson:"firstName"`
-	Email               string    `bson:"email"`
-	LastName            string    `bson:"lastName"`
-	PasswordHash        string    `bson:"passwordHash"`
-	ForgotPasswordToken string    `bson:"forgotPasswordToken"`
-	Language            string    `bson:"language"`
-	EmailVerfied        bool      `bson:"emailVerified"`
-	VerificationToken   string    `bson:"verificationToken"`
-	Salt                string    `bson:"salt"`
-	Registered          time.Time `bson:"registeredAt"`
-	LastLogin           time.Time `bson:"lastLoginAt"`
+	ID       string `bson:"_id"`
+	Username string `bson:"username"`
+	Email    string `bson:"email"`
+
+	FirstName string `bson:"firstName"`
+	LastName  string `bson:"lastName"`
+
+	PasswordHash string `bson:"passwordHash"`
+	Salt         string `bson:"salt"`
+
+	ForgotPasswordToken       string `bson:"forgotPasswordToken"`
+	ForgotPasswordRequestTime int64  `bson:"forgotPasswordTokenRequestTime"`
+
+	Language string `bson:"language"`
+
+	EmailVerfied      bool   `bson:"emailVerified"`
+	VerificationToken string `bson:"verificationToken"`
+
+	Registered time.Time `bson:"registeredAt"`
+	LastLogin  time.Time `bson:"lastLoginAt"`
 }

@@ -43,7 +43,7 @@ var _ = Describe("User:UserVerifyEmailAddress", func() {
 
 		user, _ = w.DbAdapter.GetUserByUsername("ElectricCookie")
 
-		token, _ = w.UserSendVerificationEmail(waechter.UserSendVerficationParameters{
+		token, _ = w.UserSendVerificationEmail(waechter.UserSendVerficationParams{
 			Email: user.Email,
 		})
 
@@ -51,7 +51,7 @@ var _ = Describe("User:UserVerifyEmailAddress", func() {
 
 	It("should verify the email address if the token is correct", func() {
 
-		err := w.UserVerifyEmailAddress(waechter.UserVerifyEmailParameters{
+		err := w.UserVerifyEmailAddress(waechter.UserVerifyEmailParams{
 			UserID: user.ID,
 			Token:  token,
 		})
@@ -66,7 +66,7 @@ var _ = Describe("User:UserVerifyEmailAddress", func() {
 
 	It("should not verify the email address if the token is incorrect", func() {
 
-		err := w.UserVerifyEmailAddress(waechter.UserVerifyEmailParameters{
+		err := w.UserVerifyEmailAddress(waechter.UserVerifyEmailParams{
 			UserID: user.ID,
 			Token:  "Invalid token",
 		})

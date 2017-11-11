@@ -19,8 +19,8 @@ type Waechter struct {
 	RequireInvite     bool
 	RequireActivation bool
 	// Login related
-	SessionDurationDefault    *time.Duration
-	SessionDurationRememberMe *time.Duration
+	SessionDurationDefault    time.Duration
+	SessionDurationRememberMe time.Duration
 	// Adapters
 	DbAdapter    DBAdapter
 	Locales      LocalesAdapter
@@ -46,8 +46,9 @@ func New(jwtSecret string, jwtIssuer string, dbAdapter DBAdapter, emailAdapter E
 		JwtSecret:                 jwtSecret,
 		JwtIssuer:                 jwtIssuer,
 		DbAdapter:                 dbAdapter,
-		SessionDurationDefault:    nil,
-		SessionDurationRememberMe: nil,
+		SessionDurationDefault:    time.Hour * 2,
+		SessionDurationRememberMe: -1, // Remember me session is unlimited
+		RequireActivation:         true,
 		EmailAdapter:              emailAdapter,
 		Locales:                   translations,
 	}

@@ -43,23 +43,23 @@ var _ = Describe("User:ResetPassword", func() {
 
 		user, _ = w.DbAdapter.GetUserByUsername("ElectricCookie")
 
-		token, _ = w.UserSendVerificationEmail(waechter.UserSendVerficationParameters{
+		token, _ = w.UserSendVerificationEmail(waechter.UserSendVerficationParams{
 			Email: user.Email,
 		})
 
-		w.UserVerifyEmailAddress(waechter.UserVerifyEmailParameters{UserID: user.ID, Token: token})
+		w.UserVerifyEmailAddress(waechter.UserVerifyEmailParams{UserID: user.ID, Token: token})
 
 	})
 
 	Context("Forgot password was called", func() {
 
 		BeforeEach(func() {
-			token, _ = w.ForgotPassword(waechter.ForgotPasswordParams{Email: user.Email})
+			token, _ = w.UserForgotPassword(waechter.UserForgotPasswordParams{Email: user.Email})
 		})
 
 		It("should reset the password if all paremeters are correct", func() {
 
-			err := w.ResetPassword(waechter.ResetPasswordParams{
+			err := w.UserResetPassword(waechter.UserResetPasswordParams{
 				UserID:      user.ID,
 				Token:       token,
 				NewPassword: "newPassword",
@@ -69,7 +69,7 @@ var _ = Describe("User:ResetPassword", func() {
 
 			// Do a login
 
-			_, errLogin := w.UserLoginWithUsernameOrEmail(waechter.UserLoginEmailOrUsernameData{
+			_, errLogin := w.UserLoginWithUsernameOrEmail(waechter.UserLoginEmailOrUsernameParams{
 				UsernameOrEmail: user.Username,
 				Password:        "newPassword",
 				RememberMe:      false,

@@ -8,7 +8,7 @@ import (
 //RequestVerification ...
 func (connector *Connector) RequestVerification(context *gin.Context) {
 
-	parameters := waechter.UserSendVerficationParameters{}
+	parameters := waechter.UserSendVerficationParams{}
 
 	if !connector.bindParameters(context, &parameters) {
 		return // Error occurred
@@ -23,10 +23,10 @@ func (connector *Connector) RequestVerification(context *gin.Context) {
 //VerifyEmail of a new account
 func (connector *Connector) VerifyEmail(context *gin.Context) {
 
-	err := connector.Waechter.UserVerifyEmailAddress(waechter.UserVerifyEmailParameters{
+	err := connector.Waechter.UserVerifyEmailAddress(waechter.UserVerifyEmailParams{
 		UserID: context.Query("id"),
 		Token:  context.Query("token"),
-	})	
+	})
 
 	if err != nil {
 		context.Redirect(303, connector.RedirectVerifyFailed)

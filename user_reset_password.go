@@ -1,14 +1,14 @@
 package waechter
 
-//ResetPasswordParams describes the data passed to ResetPassword
-type ResetPasswordParams struct {
+//UserResetPasswordParams describes the data passed to ResetPassword
+type UserResetPasswordParams struct {
 	UserID      string `json:"userId" bind:"required"`
 	Token       string `json:"token" bind:"required"`
 	NewPassword string `json:"newPassword" bind:"required"`
 }
 
-//ResetPassword changes the password using  a reset token. It also sends an email to notify the user of the changes made to the account
-func (waechter *Waechter) ResetPassword(params ResetPasswordParams) *AuthError {
+//UserResetPassword changes the password using  a reset token. It also sends an email to notify the user of the changes made to the account
+func (waechter *Waechter) UserResetPassword(params UserResetPasswordParams) *AuthError {
 
 	// Get the user
 	user, userErr := waechter.getDBAdapter().GetUserByID(params.UserID)

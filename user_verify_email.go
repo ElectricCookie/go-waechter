@@ -1,13 +1,13 @@
 package waechter
 
-//UserVerifyEmailParameters describes the paramteres passed to UserVerifyEmailAddress
-type UserVerifyEmailParameters struct {
+//UserVerifyEmailParams describes the paramteres passed to UserVerifyEmailAddress
+type UserVerifyEmailParams struct {
 	UserID string `json:"userId" binding:"required"`
 	Token  string `json:"token" binding:"required"`
 }
 
 //UserVerifyEmailAddress verifies the email address
-func (w *Waechter) UserVerifyEmailAddress(parameters UserVerifyEmailParameters) *AuthError {
+func (w *Waechter) UserVerifyEmailAddress(parameters UserVerifyEmailParams) *AuthError {
 
 	// Find user to retrieve token and salt
 	var user *User

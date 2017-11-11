@@ -8,13 +8,13 @@ import (
 //ForgotPassword requests a reset password email
 func (connector *Connector) ForgotPassword(context *gin.Context) {
 
-	parameters := waechter.ForgotPasswordParams{}
+	parameters := waechter.UserForgotPasswordParams{}
 
 	if !connector.bindParameters(context, &parameters) {
 		return //Error occurred
 	}
 
-	token, err := connector.Waechter.ForgotPassword(parameters)
+	token, err := connector.Waechter.UserForgotPassword(parameters)
 
 	if connector.Debug {
 		connector.respondHTTPDefault(struct {

@@ -9,7 +9,7 @@ import (
 func (connector *Connector) LoginUsername(context *gin.Context) {
 	// Retrieve data
 
-	parameters := waechter.UserLoginUsernameData{}
+	parameters := waechter.UserLoginUsernameParams{}
 
 	if !connector.bindParameters(context, &parameters) {
 		return // Error occurred
@@ -18,7 +18,7 @@ func (connector *Connector) LoginUsername(context *gin.Context) {
 	refreshToken, err := connector.Waechter.UserLoginUsername(parameters)
 
 	if err == nil {
-		context.SetCookie("Waechter-RefreshToken", *refreshToken, 2629743, connector.AuthPath, connector.Domain, connector.ForceHTTPS, true)
+		context.SetCookie("Waechter-RefreshToken", refreshToken, 2629743, connector.AuthPath, connector.Domain, connector.ForceHTTPS, true)
 	}
 
 	connector.respondHTTPDefault(struct{ status bool }{true}, err, context)
@@ -29,7 +29,7 @@ func (connector *Connector) LoginUsername(context *gin.Context) {
 func (connector *Connector) LoginEmail(context *gin.Context) {
 	// Retrieve data
 
-	parameters := waechter.UserLoginEmailData{}
+	parameters := waechter.UserLoginEmailParams{}
 
 	if !connector.bindParameters(context, &parameters) {
 		return // Error occurred
@@ -38,7 +38,7 @@ func (connector *Connector) LoginEmail(context *gin.Context) {
 	refreshToken, err := connector.Waechter.UserLoginEmail(parameters)
 
 	if err == nil {
-		context.SetCookie("Waechter-RefreshToken", *refreshToken, 2629743, connector.AuthPath, connector.Domain, connector.ForceHTTPS, true)
+		context.SetCookie("Waechter-RefreshToken", refreshToken, 2629743, connector.AuthPath, connector.Domain, connector.ForceHTTPS, true)
 	}
 
 	connector.respondHTTPDefault(struct{ status bool }{true}, err, context)
@@ -49,7 +49,7 @@ func (connector *Connector) LoginEmail(context *gin.Context) {
 func (connector *Connector) LoginUsernameOrEmail(context *gin.Context) {
 	// Retrieve data
 
-	parameters := waechter.UserLoginEmailOrUsernameData{}
+	parameters := waechter.UserLoginEmailOrUsernameParams{}
 
 	if !connector.bindParameters(context, &parameters) {
 		return // Error occurred
@@ -58,7 +58,7 @@ func (connector *Connector) LoginUsernameOrEmail(context *gin.Context) {
 	refreshToken, err := connector.Waechter.UserLoginWithUsernameOrEmail(parameters)
 
 	if err == nil {
-		context.SetCookie("Waechter-RefreshToken", *refreshToken, 2629743, connector.AuthPath, connector.Domain, connector.ForceHTTPS, true)
+		context.SetCookie("Waechter-RefreshToken", refreshToken, 2629743, connector.AuthPath, connector.Domain, connector.ForceHTTPS, true)
 	}
 
 	connector.respondHTTPDefault(struct{ status bool }{true}, err, context)

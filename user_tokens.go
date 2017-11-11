@@ -7,7 +7,7 @@ import (
 )
 
 // UserGenerateRefreshToken generates a new refresh-token and saves it in the database
-func (waechter *Waechter) UserGenerateRefreshToken(userID string, expires int64) (*string, *AuthError) {
+func (waechter *Waechter) UserGenerateRefreshToken(userID string, expires int64) (string, *AuthError) {
 
 	// Generate token
 
@@ -18,7 +18,7 @@ func (waechter *Waechter) UserGenerateRefreshToken(userID string, expires int64)
 	user, err := waechter.getDBAdapter().GetUserByID(userID)
 
 	if err != nil {
-		return nil, &AuthError{
+		return "", &AuthError{
 			ErrorCode:   "unknownUser",
 			Description: "Could not find a user with the given id",
 			IsInternal:  true,
@@ -43,15 +43,15 @@ func (waechter *Waechter) UserGenerateRefreshToken(userID string, expires int64)
 
 	resString, err := jwtToken.SignedString([]byte(waechter.JwtSecret))
 	if err != nil {
-		return nil, CryptError(err)
+		return "", CryptError(err)
 	}
 
-	return &resString, nil
+	return resString, nil
 
 }
 
-// CheckRefreshToken checks if a refresh token is valid. In case of invalidity a theft is assumed and the users sessions are nuked
-func (waechter *Waechter) CheckRefreshToken(jwtToken string) (*User, *jwt.StandardClaims, error) {
+// UserCheckRefreshToken checks if a refresh token is valid. In case of invalidity a theft is assumed and the users sessions are nuked
+func (waechter *Waechter) UserCheckRefreshToken(jwtToken string) (*User, *jwt.StandardClaims, error) {
 
 	claims := jwt.StandardClaims{}
 	_, parseError := jwt.ParseWithClaims(jwtToken, &claims, func(token *jwt.Token) (interface{}, error) {
@@ -90,8 +90,8 @@ type accessClaims struct {
 	Realm string `json:"rlm"`
 }
 
-// CheckAccessToken make sure the access token is valid
-func (waechter *Waechter) CheckAccessToken(realm string, token string) (*jwt.StandardClaims, *AuthError) {
+// UserCheckAccessToken make sure the access token is valid
+func (waechter *Waechter) UserCheckAccessToken(realm string, token string) (*jwt.StandardClaims, *AuthError) {
 	claims := accessClaims{}
 	_, parseError := jwt.ParseWithClaims(token, &claims, func(token *jwt.Token) (interface{}, error) {
 		return []byte(waechter.JwtSecret), nil
@@ -109,8 +109,8 @@ func (waechter *Waechter) CheckAccessToken(realm string, token string) (*jwt.Sta
 
 }
 
-// GenerateAccessToken issues a new access token based on a refresh token
-func (waechter *Waechter) GenerateAccessToken(claims *jwt.StandardClaims, realm string, expires time.Duration) (string, *AuthError) {
+// UserGenerateAccessToken issues a new access token based on a refresh token
+func (waechter *Waechter) UserGenerateAccessToken(claims *jwt.StandardClaims, realm string, expires time.Duration) (string, *AuthError) {
 	result, err := jwt.NewWithClaims(jwt.SigningMethodHS512, accessClaims{
 		StandardClaims: jwt.StandardClaims{
 			Issuer:    waechter.JwtIssuer,

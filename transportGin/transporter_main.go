@@ -113,7 +113,7 @@ func (connector *Connector) Enforce(target string, path string, c *gin.Context, 
 					Description: "No Access token for this action present.",
 				}, c)
 			} else {
-				accessToken, authErr := connector.Waechter.GenerateAccessToken(claims, target, expires)
+				accessToken, authErr := connector.Waechter.UserGenerateAccessToken(claims, target, expires)
 				if authErr != nil {
 					fmt.Println(authErr)
 					connector.respondHTTPDefault(nil, waechter.NotLoggedInError(), c)
@@ -143,7 +143,7 @@ func (connector *Connector) GetRefreshToken(context *gin.Context) (*waechter.Use
 		return nil, nil, err
 	}
 
-	return connector.Waechter.CheckRefreshToken(refreshToken)
+	return connector.Waechter.UserCheckRefreshToken(refreshToken)
 
 }
 
@@ -151,7 +151,7 @@ func (connector *Connector) CreateAccessToken(target string, path string, claims
 
 	// Retrieve refresh token
 
-	accessToken, authErr := connector.Waechter.GenerateAccessToken(claims, target, expires)
+	accessToken, authErr := connector.Waechter.UserGenerateAccessToken(claims, target, expires)
 
 	if authErr != nil {
 		return authErr
@@ -185,6 +185,6 @@ func (connector *Connector) CheckAccessToken(target string, context *gin.Context
 	if err != nil {
 		return nil, err
 	}
-	return connector.Waechter.CheckAccessToken(target, accessToken)
+	return connector.Waechter.UserCheckAccessToken(target, accessToken)
 
 }

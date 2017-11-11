@@ -2,13 +2,13 @@ package waechter
 
 import govalidator "github.com/asaskevich/govalidator"
 
-//UserSendVerficationParameters describes parameters  that are required to request a verification
-type UserSendVerficationParameters struct {
+//UserSendVerficationParams describes parameters  that are required to request a verification
+type UserSendVerficationParams struct {
 	Email string `json:"email" validate:"email" binding:"required"`
 }
 
 //UserSendVerificationEmail sends an email to the user with a link to verify their email address
-func (waechter *Waechter) UserSendVerificationEmail(parameters UserSendVerficationParameters) (string, *AuthError) {
+func (waechter *Waechter) UserSendVerificationEmail(parameters UserSendVerficationParams) (string, *AuthError) {
 
 	if v, vErr := govalidator.ValidateStruct(parameters); !v {
 		return "", InvalidParametersError(vErr)

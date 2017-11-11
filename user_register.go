@@ -52,6 +52,8 @@ func (waechter *Waechter) UserRegister(params UserRegisterParams) *AuthError {
 
 	// Generate activation/verification token
 
+	// TODO Validate language
+
 	passwordHash := hash(params.Password, salt)
 
 	newUser := &User{

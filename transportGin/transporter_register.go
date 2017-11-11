@@ -22,7 +22,7 @@ func (connector *Connector) Register(context *gin.Context) {
 		return
 	}
 
-	token, err := connector.Waechter.UserSendVerificationEmail(waechter.UserSendVerficationParameters{
+	token, err := connector.Waechter.UserSendVerificationEmail(waechter.UserSendVerficationParams{
 		Email: params.Email,
 	})
 

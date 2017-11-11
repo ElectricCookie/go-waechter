@@ -157,7 +157,7 @@ var _ = Describe("User:Register", func() {
 
 		It("should login somebody with the correct credentials in", func() {
 
-			authErr := makeRequest("POST", fmt.Sprint(s.URL, "/auth/login/username-or-email"), waechter.UserLoginEmailOrUsernameData{
+			authErr := makeRequest("POST", fmt.Sprint(s.URL, "/auth/login/username-or-email"), waechter.UserLoginEmailOrUsernameParams{
 				UsernameOrEmail: "ElectricCookie",
 				Password:        "Password123",
 				RememberMe:      false,
@@ -169,7 +169,7 @@ var _ = Describe("User:Register", func() {
 
 		It("should fail to log in somebody with the wrong credentials", func() {
 
-			authErr := makeRequest("POST", fmt.Sprint(s.URL, "/auth/login/username-or-email"), waechter.UserLoginEmailOrUsernameData{
+			authErr := makeRequest("POST", fmt.Sprint(s.URL, "/auth/login/username-or-email"), waechter.UserLoginEmailOrUsernameParams{
 				UsernameOrEmail: "ElectricCookie",
 				Password:        "Password1234",
 				RememberMe:      false,
@@ -177,7 +177,7 @@ var _ = Describe("User:Register", func() {
 
 			Expect(authErr).ToNot(BeNil())
 
-			authErr = makeRequest("POST", fmt.Sprint(s.URL, "/auth/login/username-or-email"), waechter.UserLoginEmailOrUsernameData{
+			authErr = makeRequest("POST", fmt.Sprint(s.URL, "/auth/login/username-or-email"), waechter.UserLoginEmailOrUsernameParams{
 				UsernameOrEmail: "ElectricCookiee",
 				Password:        "Password123",
 				RememberMe:      false,
@@ -223,7 +223,7 @@ var _ = Describe("User:Register", func() {
 
 			Expect(authErr).To(BeNil())
 
-			authErr = makeRequest("POST", fmt.Sprint(s.URL, "/auth/login/username-or-email"), waechter.UserLoginEmailOrUsernameData{
+			authErr = makeRequest("POST", fmt.Sprint(s.URL, "/auth/login/username-or-email"), waechter.UserLoginEmailOrUsernameParams{
 				UsernameOrEmail: "ElectricCookie",
 				Password:        "newPassword123",
 				RememberMe:      false,

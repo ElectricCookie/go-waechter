@@ -25,6 +25,7 @@ func emailNotVerifiedError() *AuthError {
 	}
 }
 
+//CryptError occurs if an encryption process fails
 func CryptError(err error) *AuthError {
 	return &AuthError{
 		ErrorCode:   "cryptError",

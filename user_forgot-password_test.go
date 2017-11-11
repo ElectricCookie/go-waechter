@@ -9,7 +9,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("User:ForgotPassword", func() {
+var _ = Describe("User:UserForgotPassword", func() {
 
 	var w *waechter.Waechter
 	var token string
@@ -43,7 +43,7 @@ var _ = Describe("User:ForgotPassword", func() {
 
 		user, _ = w.DbAdapter.GetUserByUsername("ElectricCookie")
 
-		token, _ = w.UserSendVerificationEmail(waechter.UserSendVerficationParameters{
+		token, _ = w.UserSendVerificationEmail(waechter.UserSendVerficationParams{
 			Email: user.Email,
 		})
 
@@ -52,7 +52,7 @@ var _ = Describe("User:ForgotPassword", func() {
 	Context("Email was verified", func() {
 
 		BeforeEach(func() {
-			w.UserVerifyEmailAddress(waechter.UserVerifyEmailParameters{
+			w.UserVerifyEmailAddress(waechter.UserVerifyEmailParams{
 				UserID: user.ID,
 				Token:  token,
 			})
@@ -60,7 +60,7 @@ var _ = Describe("User:ForgotPassword", func() {
 
 		It("should fail if the email is unknown", func() {
 
-			_, err := w.ForgotPassword(waechter.ForgotPasswordParams{Email: "unknownEmail@something.com"})
+			_, err := w.UserForgotPassword(waechter.UserForgotPasswordParams{Email: "unknownEmail@something.com"})
 
 			Expect(err).ToNot(BeNil())
 			Expect(err.ErrorCode).To(Equal("userNotFound"))
@@ -69,7 +69,7 @@ var _ = Describe("User:ForgotPassword", func() {
 
 		It("should fail if the parameter passed is not an email", func() {
 
-			_, err := w.ForgotPassword(waechter.ForgotPasswordParams{Email: "123coaks"})
+			_, err := w.UserForgotPassword(waechter.UserForgotPasswordParams{Email: "123coaks"})
 			Expect(err).ToNot(BeNil())
 			Expect(err.ErrorCode).To(Equal("invalidParameters"))
 
@@ -77,7 +77,7 @@ var _ = Describe("User:ForgotPassword", func() {
 
 		It("should always create a new token in the DB", func() {
 
-			w.ForgotPassword(waechter.ForgotPasswordParams{Email: "somebody@something.com"})
+			w.UserForgotPassword(waechter.UserForgotPasswordParams{Email: "somebody@something.com"})
 
 			userA, _ := w.DbAdapter.GetUserByUsername("ElectricCookie")
 
@@ -85,7 +85,7 @@ var _ = Describe("User:ForgotPassword", func() {
 
 			Expect(user.ForgotPasswordToken).NotTo(Equal("deactivated"))
 
-			w.ForgotPassword(waechter.ForgotPasswordParams{Email: "somebody@something.com"})
+			w.UserForgotPassword(waechter.UserForgotPasswordParams{Email: "somebody@something.com"})
 
 			userB, _ := w.DbAdapter.GetUserByUsername("ElectricCookie")
 
@@ -97,7 +97,7 @@ var _ = Describe("User:ForgotPassword", func() {
 
 	It("should fail if the email is not verified", func() {
 
-		_, err := w.ForgotPassword(waechter.ForgotPasswordParams{Email: "somebody@something.com"})
+		_, err := w.UserForgotPassword(waechter.UserForgotPasswordParams{Email: "somebody@something.com"})
 
 		Expect(err).ToNot(BeNil())
 		Expect(err.ErrorCode).To(Equal("emailNotVerified"))

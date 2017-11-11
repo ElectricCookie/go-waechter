@@ -4,13 +4,13 @@ import (
 	validator "github.com/asaskevich/govalidator"
 )
 
-//ForgotPasswordParams describes parameters passed to ForgotPassword
-type ForgotPasswordParams struct {
+//UserForgotPasswordParams describes parameters passed to UserForgotPassword
+type UserForgotPasswordParams struct {
 	Email string `json:"email" binding:"required" valid:"required,email"`
 }
 
-//ForgotPassword sends an email to recover the password
-func (w *Waechter) ForgotPassword(parameters ForgotPasswordParams) (string, *AuthError) {
+//UserForgotPassword sends an email to recover the password
+func (w *Waechter) UserForgotPassword(parameters UserForgotPasswordParams) (string, *AuthError) {
 
 	valid, validationErrs := validator.ValidateStruct(parameters)
 
