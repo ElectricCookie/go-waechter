@@ -2,7 +2,7 @@
     <img alt="Waechter - Logo" src="http://imgur.com/WWeVTGh.png" height="30"/>
     <br/>
     <br/>
-    <a href="https://circleci.com/gh/ElectricCookie/go-waechter/tree/master"><img alt="CircleCI build status" src="https://circleci.com/gh/ElectricCookie/go-waechter/tree/master.svg?style=shield" /></a>
+    <a href="https://travis-ci.org/ElectricCookie/go-waechter"><img alt="Travis CI build status" src="https://travis-ci.org/ElectricCookie/go-waechter.svg?branch=master" /></a>
     <a href="https://goreportcard.com/report/github.com/ElectricCookie/go-waechter"><img alt="Go Report Card" src="https://goreportcard.com/badge/github.com/ElectricCookie/go-waechter" /></a>
     <a href="https://codecov.io/gh/ElectricCookie/go-waechter"><img alt="Codecov Card" src="https://codecov.io/gh/ElectricCookie/go-waechter/branch/master/graph/badge.svg" /></a>
  
@@ -75,44 +75,4 @@ The refresh tokens are saved as JWT to httpOnly cookies (if you're using the gin
 
     }
 ```
-
-
-## Gin Adapter
-
-* POST: /auth/login/username
-    * Encoding: application/json
-    * Parameters
-        ```js
-            {
-                "username": string,
-                "password": string,
-                "rememberMe": boolean
-            }
-        ```
-    * Returns
-        * Errors
-            ```js
-            {
-                "errorCode": "internalError" / "wrongPassword" / "userNotFound",
-                "description": string,
-            }
-            ``` 
-        * Result
-            ```js
-            {
-                "status": true
-            }
-            ```
-
-            **JWT** is stored in a cookie called "Waechter-RefreshToken" 
-* POST /auth/login/email
-    * Encoding: application/json
-* POST /auth/login/emailOrUsername
-    * Encoding: application/json
-* POST /auth/register
-    * Encoding: application/json
-* POST /auth/forgot-password
-    * Encoding: application/json
-* POST /auth/reset-password
-    * Encoding: application/json
 
