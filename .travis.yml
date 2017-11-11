@@ -1,0 +1,14 @@
+language: go
+go:
+  - 1.9
+
+install:
+    - go get -v github.com/onsi/ginkgo/ginkgo
+    - go get -v github.com/onsi/gomega
+    - go get -v -t ./...
+    - export PATH=$PATH:$HOME/gopath/bin
+script:
+  - ginkgo -cover 
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
