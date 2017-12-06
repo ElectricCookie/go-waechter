@@ -86,6 +86,22 @@ var _ = Describe("User:Register", func() {
 
 		})
 
+		It("should set the default language if the incorrect one is passed", func() {
+
+			errOne := w.UserRegister(waechter.UserRegisterParams{
+				Username:  "ElectricCookie",
+				Email:     "somebody@something.com",
+				Password:  "test123",
+				Language:  "invalid",
+				FirstName: "Electric",
+				LastName:  "Cookie",
+			})
+
+			Expect(errOne).To(BeNil())
+			u, _ := w.DbAdapter.GetUserByUsername("ElectricCookie")
+			Expect(u.Language).To(Equal("en"))
+		})
+
 		It("should fail if the email is taken", func() {
 
 			errOne := w.UserRegister(waechter.UserRegisterParams{

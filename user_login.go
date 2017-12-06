@@ -7,6 +7,15 @@ import (
 // performLogin checks if the password passed works for the user
 func (waechter *Waechter) performLogin(password string, user *User, rememberMe bool) (string, *AuthError) {
 
+	identifier := user.Username + ":Login"
+
+	if try(identifier) != nil {
+		return "", resourceBlockedError()
+	}
+
+	defer time.Sleep(time.Second * 3)
+	defer release(identifier)
+
 	if dk := hash(password, user.Salt); string(dk) != user.PasswordHash {
 		return "", invalidPasswordError()
 	}

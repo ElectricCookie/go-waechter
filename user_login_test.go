@@ -12,6 +12,7 @@ import (
 var _ = Describe("User:UserVerifyEmailAddress", func() {
 
 	var w *waechter.Waechter
+	waechter.EnableThrottle = false
 	var token string
 	var user *waechter.User
 
@@ -228,6 +229,30 @@ var _ = Describe("User:UserVerifyEmailAddress", func() {
 				_, _, verifyErr := w.UserCheckRefreshToken(refreshToken)
 
 				Expect(verifyErr).To(BeNil())
+
+			})
+
+			It("should fail if login attempts are too close to each other", func() {
+				waechter.EnableThrottle = true
+				go func() {
+					w.UserLoginUsername(waechter.UserLoginUsernameParams{
+						Username:   "ElectricCookie",
+						Password:   "test123",
+						RememberMe: true,
+					})
+				}()
+
+				_, err := w.UserLoginUsername(waechter.UserLoginUsernameParams{
+					Username:   "ElectricCookie",
+					Password:   "test123",
+					RememberMe: true,
+				})
+
+				Expect(err).ToNot(BeNil())
+
+				Expect(err.ErrorCode).To(Equal("blockedError"))
+
+				waechter.EnableThrottle = false
 
 			})
 

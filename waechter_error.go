@@ -17,6 +17,14 @@ func internalError(err error) *AuthError {
 	}
 }
 
+func resourceBlockedError() *AuthError {
+	return &AuthError{
+		ErrorCode:   "blockedError",
+		Description: "Request blocked. Wait for other request to finish",
+		IsInternal:  false,
+	}
+}
+
 func emailNotVerifiedError() *AuthError {
 	return &AuthError{
 		ErrorCode:   "emailNotVerified",

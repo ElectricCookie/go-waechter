@@ -30,13 +30,13 @@ type TranslationParameters map[string]interface{}
 
 //DefaultTranslations uses some predefined translations and templates for waechter
 type DefaultTranslations struct {
-	CompanyName          string
-	CompanyWebsite       string
-	LogoURL              string
-	Locales              map[string]Translation
-	DefaultLanguage      string
-	UserVerifyEmailAddress   string
-	ResetPasswordAddress string
+	CompanyName            string
+	CompanyWebsite         string
+	LogoURL                string
+	Locales                map[string]Translation
+	DefaultLanguage        string
+	UserVerifyEmailAddress string
+	ResetPasswordAddress   string
 }
 
 //NewDefaultTranslations creates a new DefaultTranslation and loads en and de locales
@@ -98,6 +98,25 @@ func (def *DefaultTranslations) getString(template *template.Template, user *wae
 	template.Execute(&buf, finalParams)
 
 	return buf.String()
+}
+
+//GetLanguages retrieves all available langauges
+func (def *DefaultTranslations) GetLanguages() []string {
+
+	keys := make([]string, len(def.Locales))
+
+	i := 0
+	for k := range def.Locales {
+		keys[i] = k
+		i++
+	}
+	return keys
+}
+
+//GetDefaultLanguage returns the default lang code
+func (def *DefaultTranslations) GetDefaultLanguage() string {
+
+	return "en"
 }
 
 //GetRegistrationEmail returns an email struct for a new user

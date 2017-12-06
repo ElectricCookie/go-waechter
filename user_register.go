@@ -16,6 +16,18 @@ type UserRegisterParams struct {
 	Language  string `valid:"required" json:"language" binding:"required"`
 }
 
+func (waechter *Waechter) languageExists(lang string) bool {
+
+	languages := waechter.Locales.GetLanguages()
+
+	for _, langI := range languages {
+		if langI == lang {
+			return true
+		}
+	}
+	return false
+}
+
 //UserRegister a new user
 func (waechter *Waechter) UserRegister(params UserRegisterParams) *AuthError {
 	// Check if user exists
@@ -44,6 +56,12 @@ func (waechter *Waechter) UserRegister(params UserRegisterParams) *AuthError {
 			ErrorCode:   "emailUsed",
 			Description: "The desired email is already in use",
 		}
+	}
+
+	// Check if the langauge is valid
+
+	if !waechter.languageExists(params.Language) {
+		params.Language = waechter.Locales.GetDefaultLanguage()
 	}
 
 	// Generate salt

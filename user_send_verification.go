@@ -42,9 +42,7 @@ func (waechter *Waechter) UserSendVerificationEmail(parameters UserSendVerficati
 		return "", internalError(err)
 	}
 
-	emailErr := waechter.getEmailAdapter().SendEmail(email)
-
-	if emailErr != nil {
+	if emailErr := waechter.getEmailAdapter().SendEmail(email); emailErr != nil {
 		return "", emailSendError(emailErr)
 	}
 
