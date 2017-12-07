@@ -7,6 +7,9 @@ import (
 	"golang.org/x/crypto/scrypt"
 )
 
+//HashExpense sets the amount of computing power used by scrypt.
+var HashExpense = 16384
+
 func generateRandomBytes(n int) ([]byte, error) {
 	b := make([]byte, n)
 	_, err := rand.Read(b)
@@ -27,7 +30,7 @@ func generateRandomString(length int) string {
 }
 
 func hash(input string, salt string) string {
-	b, err := scrypt.Key([]byte(input), []byte(salt), 16384, 8, 1, 32)
+	b, err := scrypt.Key([]byte(input), []byte(salt), HashExpense, 8, 1, 32)
 	if err != nil {
 		panic(err)
 	}

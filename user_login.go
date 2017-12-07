@@ -9,12 +9,14 @@ func (waechter *Waechter) performLogin(password string, user *User, rememberMe b
 
 	identifier := user.Username + ":Login"
 
-	if try(identifier) != nil {
-		return "", resourceBlockedError()
-	}
+	if EnableThrottle {
+		if try(identifier) != nil {
+			return "", resourceBlockedError()
+		}
 
-	defer time.Sleep(time.Second * 3)
-	defer release(identifier)
+		defer time.Sleep(time.Second * 3)
+		defer release(identifier)
+	}
 
 	if dk := hash(password, user.Salt); string(dk) != user.PasswordHash {
 		return "", invalidPasswordError()
